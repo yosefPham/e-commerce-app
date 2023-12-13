@@ -13,6 +13,7 @@ import ScreenName from '../../navigation/screen-name';
 import { delProduct, getListProductOwner } from '../../apis/functions/product';
 import ItemOrder from './components/ItemOrder';
 import { List } from '@ui-kitten/components';
+import ItemEmpty from '../../components/Item/ItemEmpty';
 
 const route = [
 { key: "0", title: "Chờ xác nhận" },
@@ -121,6 +122,7 @@ const Search = ({ navigation }: any) => {
             refreshing={loading}
             ListFooterComponent={<View style={R.themes.gap} />}
             onRefresh={onRefresh}
+            ListEmptyComponent={<ItemEmpty/>}
           />
         </View>
       )

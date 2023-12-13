@@ -1,16 +1,18 @@
 import React, {useEffect, useState, useRef} from 'react';
-import { View, Text, Button, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { TabView } from 'react-native-tab-view';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons"
+import { List } from '@ui-kitten/components';
 
 import R from '../../assets/R';
-
+import { getListProductClient } from '../../apis/functions/product';
 import { Header } from '../../components/Headers/Header';
-import { HEIGHT, WIDTH } from '../../configs/functions';
+import { getWidth, HEIGHT, WIDTH } from '../../configs/functions';
 import { E_TYPE_INPUT } from '../../types/emuns';
-import ItemProducts from './components/ItemListProduct';
 import styles from './styles';
+import ItemProduct from '../../components/Item/ItemProduct';
+import ItemEmpty from '../../components/Item/ItemEmpty';
 
 const route = [
 { key: "1", title: "Liên quan" },
@@ -19,15 +21,55 @@ const route = [
 { key: "4", title: "Giá" },
 ]
 const Search = ({ navigation }: any) => {
-    const initIndex = 0
-
+  const initIndex = 0
   const [currentIndex, setIndex] = useState(initIndex)
   const [routes, setRoutes] = useState(route)
   const timeOut = useRef(null)
   const [isDisable, setIsDisable] = useState(false)
-//   useEffect(() => {
-//     global.isOpened = true
-//   }, [])
+  const [listProduct, setListProduct] = useState<any[]>([])
+  const [totalPages, setTotalPages] = useState<number>(0)
+  const currentPage = useRef<number>(0)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [textSearch, setTextSearch] = useState<string>('')
+  const getData = async () => {
+    try {
+      setLoading(true)
+      const res = await getListProductClient(currentPage.current, 6, "id", textSearch)
+      setListProduct(res?.data?.data.content)
+      setTotalPages(res?.data?.data.totalPages)
+    } catch (err) {
+      console.log(err)
+    } finally {
+      setLoading(false)
+    }
+  }
+  const getMoreData = async () => {
+    try {
+      setLoading(true)
+      // currentPage.current = 2
+      const res = await getListProductClient(currentPage.current, 6, "id", textSearch)
+      setListProduct([...listProduct, ...res?.data?.data.content])
+    } catch (err) {
+      console.log(err)
+    } finally {
+      setLoading(false)
+    }
+  }
+  const onLoadMore = () => {
+    if (currentPage.current < totalPages) {
+      currentPage.current = currentPage.current + 1
+    }
+    getMoreData()
+  }
+  const onRefresh = () => {
+    currentPage.current = 0;
+    getData()
+  }
+  useEffect(() => {
+    getData()
+  }, [])
+  useEffect(() => {
+  }, [listProduct])
   useEffect(() => {
     onChangeIndex(initIndex)
   }, [initIndex])
@@ -41,9 +83,35 @@ const Search = ({ navigation }: any) => {
   const renderScene = ({ route }: { route: { key: string } }) => {
     switch (route.key) {
       case "1":
-        return (<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ItemProducts/>
-        </View>)
+        return (
+          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+            <List
+              data={listProduct}
+              extraData={listProduct}
+              showsVerticalScrollIndicator={false}
+              renderItem={({ item, index }: any) => {
+                if (listProduct.length === index + 1 && listProduct.length % 2 !== 0) {
+                  return <View/>
+                }
+                return (
+                  <ItemProduct key={index} item={item ?? {}} isLocation={true}/>
+                )
+              }}
+              numColumns={getWidth() >= 300 ? 2 : 1}
+              onEndReachedThreshold={0.1}
+              maxToRenderPerBatch={6}
+              initialNumToRender={6}
+              style={styles.list}
+              columnWrapperStyle={getWidth() >= 300 ? styles.columnWrapperStyle : undefined}
+              onRefresh={onRefresh}
+              refreshing={loading}
+              ListFooterComponent={<View style={R.themes.gap} />}
+              onEndReached={onLoadMore}
+              ListEmptyComponent={<ItemEmpty/>}
+              // ListFooterComponent={loadMore && <LoadMore />}
+            />
+          </View>
+        )
       case "2":
         return (<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <Text>Notifycaton Screensssss</Text>
@@ -60,7 +128,6 @@ const Search = ({ navigation }: any) => {
         return null
     }
   }
-
   const renderTabBar = () => {
     return (
       <View style={styles.tabContainer}>
@@ -100,6 +167,9 @@ const Search = ({ navigation }: any) => {
       </View>
     )
   }
+  const handleSearchProduct = () => {
+    onRefresh()
+  }
   return (
     <View style={{ flex: 1, justifyContent: 'center'}}>
       <Header
@@ -109,6 +179,8 @@ const Search = ({ navigation }: any) => {
         typeInput={E_TYPE_INPUT.BORDER}
         style={{borderColor: R.colors.white}}
         isFocusInput={true}
+        onChangeText={(value: string) => setTextSearch(value)}
+        onSubmit={onRefresh}
       />
       <View style={styles.container}>
         <TabView

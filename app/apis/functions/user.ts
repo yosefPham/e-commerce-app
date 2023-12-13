@@ -1,4 +1,4 @@
-import { delData, getData, postData, postFormData, putData } from "../helper"
+import { delData, getData, postData, postFormData, putData, putFormData } from "../helper"
 import URL from "../url"
 
 
@@ -30,10 +30,43 @@ export const activeAccount = (body: any, codes: string) => {
   }).then((res: any) => res)
 }
 
+export const getListAddressUser = () => {
+  return getData<any, any>({
+    endpoint: `${URL.ADDRESS}/list`,
+    params: {},
+  }).then((res: any) => res)
+}
+
+export const postAddress = (body: any) => {
+  return postData<any, any>({
+    endpoint: `${URL.ADDRESS}/create`,
+    params: body,
+  }).then((res: any) => res)
+}
+
+export const putAddress = (id: string, body: any) => {
+  return putData<any, any>({
+    endpoint: `${URL.ADDRESS}/update/${id}`,
+    params: body,
+  }).then((res: any) => res)
+}
+
+export const delAddress = (id: string) => {
+  return delData<any, any>({
+    endpoint: `${URL.ADDRESS}/delete/${id}`,
+  }).then((res: any) => res)
+}
 
 export const putAccount = (body: any) => {
   return putData<any, any>({
     endpoint: `${URL.PUT_EDIT_ACCOUNT}`,
+    params: body,
+  }).then((res: any) => res)
+}
+
+export const putAvatar = (body: any) => {
+  return putFormData<any, any>({
+    endpoint: `${URL.PUT_AVATAR}`,
     params: body,
   }).then((res: any) => res)
 }
@@ -61,3 +94,15 @@ export const getListWards = (id: number) => {
     endpoint: `${URL.GET_ADDRESS_NAME}/d/${id}?depth=2`
   }).then((res: any) => res)
 }
+
+export const getListBank = () =>
+  getData<any, any>({
+    endpoint: `${URL.GET_LIST_BANK}`,
+    params: {},
+  }).then((res) => res.data)
+
+export const getListBinBank = () =>
+  getData<any, any>({
+    endpoint: `${URL.GET_BIN_BANK}`,
+    params: {}
+  }).then((res) => res.data)

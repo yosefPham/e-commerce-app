@@ -19,7 +19,6 @@ type Props = {
 const SET_WIDTH: ViewStyle = {height: HEIGHT(215)}
 const ItemOrder: React.FC<Props> = (props: Props) => {
   const { item, route, onPress, status} = props
-  console.log('status', status)
   useEffect(() => {
 
   }, [status])

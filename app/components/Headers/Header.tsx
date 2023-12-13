@@ -11,6 +11,7 @@ import R from "../../assets/R"
 import SearchBar from "../Item/SearchBar"
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ScreenName from "../../navigation/screen-name";
+import { getSizeOfCart } from "../../apis/functions/product";
 
 // static styles
 const ROOT: ViewStyle = {
@@ -50,18 +51,30 @@ export function Header(props: HeaderProps) {
     isFocusInput,
     isSearch,
     placeHolderInput,
-    noBorder
+    noBorder,
+    onChangeText,
+    onSubmit,
+    quantityOfCart
   } = props
   const navigation: any = useNavigation();
   const [useInfo, setUserInfo] = useState<any>()
+  const [sizeCart, setSizeCart] = useState<number>(0)
+  const [sizeMessage, setSizeMessage] = useState<number>(0)
   const getUserInfo = async () => {
     const userInfoString: any = await AsyncStorage.getItem('userInfo')
     const userInfoObject = JSON.parse(userInfoString);
     setUserInfo(userInfoObject)
   }
+  const getCartSize = async () => {
+    const res = await getSizeOfCart()
+    if (res?.data?.status === "OK") setSizeCart(res?.data?.data)
+  }
   useEffect(() => {
     getUserInfo()
+    getCartSize()
   },[])
+  useEffect(() => {
+  },[sizeCart, sizeMessage, quantityOfCart])
   return (
     <View style={[
       styles.container, 
@@ -71,16 +84,32 @@ export function Header(props: HeaderProps) {
       { ...ROOT, ...style}]
     }>
       {isBack && 
-        <TouchableOpacity onPress={() => onBack ? onBack() : navigation.goBack() }>
+        <TouchableOpacity onPress={() => {
+          onBack ? onBack() : navigation.goBack()
+          return getCartSize()
+        }}>
           <Icon name={"arrow-back-outline"} size={WIDTH(25)} color={R.colors.primary} />
         </TouchableOpacity>
       }
       {headerText && <Text style={styles.headerText}>{headerText}</Text>}
-      {isSearch !== false && <SearchBar isFocusInput={isFocusInput} value={searchText ?? ""} onPressInputSearch={onPressInputSearch} type={typeInput} placeHolder={placeHolderInput}/>}
+      {isSearch !== false && 
+      <SearchBar 
+        isFocusInput={isFocusInput} 
+        value={searchText ?? ""} 
+        onPressInputSearch={onPressInputSearch} 
+        type={typeInput} 
+        placeHolder={placeHolderInput}
+        onChangeText={onChangeText}
+        onSubmit={onSubmit}
+      />}
       {isIconCart ? (
-        <TouchableOpacity style={styles.iconRight} onPress={() => useInfo ? (onCartPress && onCartPress()) : navigation.navigate(ScreenName.Login)}>
+        <TouchableOpacity style={styles.iconRight} onPress={() => useInfo ? navigation.navigate(ScreenName.Cart) : navigation.navigate(ScreenName.Login)}>
           <Icon name={"cart-outline"} size={WIDTH(25)} color={isSearch === false ? R.colors.white : R.colors.primary} />
-          <View style={[styles.quatity, isSearch === false && { borderColor: R.colors.white, borderWidth: 1 }]}><Text style={{color: R.colors.white, fontSize: getFont(12)}}>{numberCart ?? 25}</Text></View>
+          {sizeCart ? 
+          <View style={[styles.quatity, isSearch === false && { borderColor: R.colors.white, borderWidth: 1 }]}>
+            <Text style={{color: R.colors.white, fontSize: getFont(12)}}>{`${quantityOfCart ?? sizeCart ?? 0}`}</Text>
+          </View>
+          : <View/>}
         </TouchableOpacity>
       ) : (
         <View style={RIGHT} />
@@ -88,7 +117,11 @@ export function Header(props: HeaderProps) {
       {isIconMessage ? (
         <TouchableOpacity style={styles.iconRight} onPress={() => useInfo ? (onMessagePress && onMessagePress()) : navigation.navigate(ScreenName.Login)}>
           <Icon name={"chatbubble-ellipses-outline"} size={WIDTH(25)} color={isSearch === false ? R.colors.white : R.colors.primary} />
-          <View style={[styles.quatity, isSearch === false && { borderColor: R.colors.white, borderWidth: 1 }]}><Text style={{color: R.colors.white, fontSize: getFont(12)}}>{numberCart ?? 3}</Text></View>
+          {sizeMessage ?
+          <View style={[styles.quatity, isSearch === false && { borderColor: R.colors.white, borderWidth: 1 }]}>
+            <Text style={{color: R.colors.white, fontSize: getFont(12)}}>{numberCart ?? 3}</Text>
+          </View>
+          : <View/>}
         </TouchableOpacity>
       ) : (
         <View style={RIGHT} />

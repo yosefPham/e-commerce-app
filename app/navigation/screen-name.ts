@@ -16,6 +16,17 @@ const ScreenName = {
     AddNewProduct: "AddNewProduct",
     DetailOrder: "DetailOrder",
     NewAddress: "NewAddress",
+    Finance: "Finance",
+    Deposits: "Deposits",
+    Withdraw: "Withdraw",
+    WithdrawalAccount: "WithdrawalAccount",
+    Sales: "Sales",
+    Pay: "Pay",
+    Cart: "Cart",
+    OrderProcessing: "OrderProcessing",
+    PaymentMethods: "PaymentMethods",
+    Detail: "Detail",
+    TransactionHistory: "TransactionHistory",
 }
 
 export default ScreenName

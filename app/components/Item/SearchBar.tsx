@@ -20,13 +20,14 @@ type Props = {
   onPressInputSearch?: any
   type?: string
   isFocusInput?: boolean
+  onSubmit?: () => void
 }
 
 const BORDER: ViewStyle = { borderColor: R.colors.primary, borderWidth: 0.5, backgroundColor: R.colors.white }
 
 const SearchBar: React.FC<Props> = (props: Props) => {
   const navigation = useNavigation();
-  const { value, placeHolder, style, rightIcon, onChangeText, inputStyle, onPressInputSearch, type, isFocusInput} = props
+  const { value, placeHolder, style, rightIcon, onChangeText, inputStyle, onPressInputSearch, type, isFocusInput, onSubmit} = props
   const [inputVal, setInputVal] = useState<string>("");
   useEffect(() => {
       setInputVal(value)
@@ -56,6 +57,7 @@ const SearchBar: React.FC<Props> = (props: Props) => {
             onChangeText(newVal);
           }
         }}
+        onSubmitEditing={onSubmit}
         onFocus={() => onPressInputSearch && onPressInputSearch()}
         cursorColor={R.colors.primary}
       />

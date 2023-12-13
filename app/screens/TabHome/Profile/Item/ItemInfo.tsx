@@ -14,18 +14,11 @@ import { getAccount } from '../../../../apis/functions/user';
 type Props = {
   item?: any,
 }
-const ItemInfo = ({navigation}: any) => {
+const ItemInfo = ({navigation, item}: any) => {
   const [useInfo, setUserInfo] = useState<any>()
-  const getUserInfo = async () => {
-    const userInfoString: any = await AsyncStorage.getItem('userInfo')
-    const userInfoObject = JSON.parse(userInfoString);
-    setUserInfo(userInfoObject)
-    const res = await getAccount(userInfoObject?.id)
-  }
   useEffect(() => {
-    getUserInfo()
-    
-  },[])
+    setUserInfo(item)
+  },[useInfo, item])
   return (
     <View style={[styles.container, !useInfo && { justifyContent: 'space-between', paddingBottom: HEIGHT(10)}]}>
       {useInfo ? (

@@ -16,10 +16,6 @@ export type IResponse<R> = ApiResponse<R & ErrorCode> & {
 
 export const rootServerInstance = APISauce.create({
   baseURL: URL.ROOT_API,
-  // headers: {
-  //   "Content-Type": "application/json",
-  //   'Authorization': '',
-  // },
 })
 rootServerInstance.axiosInstance.interceptors.response.use(
   (response) => {
@@ -54,7 +50,6 @@ export async function getData<P, R>(request: IRequest<P>): Promise<IResponse<R>>
   return await rootServerInstance
     .get<R & ErrorCode>(request.endpoint, request.params)
     .then((response: any) => {
-      
       return response
     })
 }
@@ -62,7 +57,6 @@ export async function postData<P, R>(request: IRequest<P>): Promise<IResponse<R>
   return await rootServerInstance
     .post<R & ErrorCode>(request.endpoint, request.params)
     .then((response: any) => {
-      console.log(response)
       return response?.data
     })
 }
@@ -70,7 +64,6 @@ export async function putData<P, R>(request: IRequest<P>): Promise<IResponse<R>>
   return await rootServerInstance
     .put<R & ErrorCode>(request.endpoint, request.params, request.query)
     .then((response: any) => {
-      console.log(response)
       return response?.data
     })
 }
@@ -86,7 +79,14 @@ export async function postFormData<P, R>(request: IRequest<P>): Promise<IRespons
   return await rootServerInstance
     .post<R & ErrorCode>(request.endpoint, request.params, formdataConfig)
     .then((response: any) => {
-      console.log(response)
+      return response?.data
+    })
+}
+
+export async function putFormData<P, R>(request: IRequest<P>): Promise<IResponse<R>> {
+  return await rootServerInstance
+    .put<R & ErrorCode>(request.endpoint, request.params, { headers: { 'Content-Type': 'multipart/form-data'}})
+    .then((response: any) => {
       return response?.data
     })
 }

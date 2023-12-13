@@ -12,11 +12,12 @@ import { formatCurrency, getFont, getWidth, HEIGHT, WIDTH } from '../../../confi
 import ScreenName from '../../../navigation/screen-name';
 
 import styles from './styles';
+import ItemEmpty from '../../../components/Item/ItemEmpty';
 
 const data = [1, 2, 1, 1, 1, 1]
 const Home = ({ navigation }: any) => {
   const { token } = useContext(AuthContext)
-  // console.log('token', token)
+  console.log('token', token)
   const [listProduct, setListProduct] = useState<any[]>([])
   const [totalPages, setTotalPages] = useState<number>(0)
   const currentPage = useRef<number>(0)
@@ -37,17 +38,17 @@ const Home = ({ navigation }: any) => {
   }
   const [timeRemaining, setTimeRemaining] = React.useState(calculateTimeRemaining());
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      setTimeRemaining(prevTimeRemaining => {
-        const newTimeRemaining = Math.max(0, prevTimeRemaining - 1);
-        if (newTimeRemaining === 0) {
-          setTargetHour(getNextTimeFrame());
-          return calculateTimeRemaining();
-        }
-        return newTimeRemaining;
-      });
-    }, 1000);
-    return () => clearInterval(intervalId);
+    // const intervalId = setInterval(() => {
+    //   setTimeRemaining(prevTimeRemaining => {
+    //     const newTimeRemaining = Math.max(0, prevTimeRemaining - 1);
+    //     if (newTimeRemaining === 0) {
+    //       setTargetHour(getNextTimeFrame());
+    //       return calculateTimeRemaining();
+    //     }
+    //     return newTimeRemaining;
+    //   });
+    // }, 1000);
+    // return () => clearInterval(intervalId);
   }, [targetHour]);
   const hours = Math.floor(timeRemaining / 3600);
   const minutes = Math.floor((timeRemaining % 3600) / 60);
@@ -91,7 +92,6 @@ const Home = ({ navigation }: any) => {
   }, [])
   useEffect(() => {
   }, [listProduct])
-  
   
   return (
     <View style={{ flex: 1, justifyContent: 'center', paddingVertical: HEIGHT(50) }}>
@@ -186,7 +186,6 @@ const Home = ({ navigation }: any) => {
             )
           }}
           numColumns={getWidth() >= 300 ? 2 : 1}
-          // ListEmptyComponent={loading ? <LoadingComponent isLoading={true}/> : <ItemTrong content={translate("TRONG")} customStyle={R.themes.empty} />}
           onEndReachedThreshold={0.1}
           maxToRenderPerBatch={6}
           initialNumToRender={6}
@@ -196,6 +195,7 @@ const Home = ({ navigation }: any) => {
           refreshing={loading}
           ListFooterComponent={<View style={R.themes.gap} />}
           onEndReached={onLoadMore}
+          ListEmptyComponent={<ItemEmpty/>}
         />
       </View>
     </View>

@@ -9,6 +9,8 @@ export interface HeaderProps {
   rightIcon?: string
   onCartPress?(): void
   onMessagePress?(): void
+  onChangeText?(value: string): void
+  onSubmit?(): void
   style?: ViewStyle
   titleStyle?: TextStyle
   searchText?: string
@@ -24,4 +26,5 @@ export interface HeaderProps {
   isSearch?: boolean
   placeHolderInput?: string
   noBorder?: boolean
+  quantityOfCart?: number
 }

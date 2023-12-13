@@ -1,12 +1,10 @@
+import { useNavigation } from "@react-navigation/native"
 import React, {useEffect, useState} from "react"
 import {Image, StyleProp, StyleSheet, Text, TextInput, TextStyle, TouchableOpacity, View, ViewStyle} from "react-native"
 import Icon from "react-native-vector-icons/Ionicons"
-// config
-// import { translate } from "@i18n"
 import R from "../../assets/R"
+import ScreenName from "../../navigation/screen-name"
 import { formatCurrency, getFont, HEIGHT, WIDTH } from "../../configs/functions"
-import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import Colors from "../../assets/colors";
 
 type Props = {
   value?: string
@@ -18,16 +16,22 @@ type Props = {
   nameProduct?: string
   item: any
   isLocation?: boolean
+  onPress?: () => void
 }
 
 const ItemProduct: React.FC<Props> = (props: Props) => {
-  const { value, placeHolder, style, rightIcon, onChangeText, inputStyle, nameProduct, item, isLocation } = props
+    const navigation: any = useNavigation()
+    const { value, placeHolder, style, rightIcon, onChangeText, inputStyle, nameProduct, item, isLocation, onPress } = props
     const [inputVal, setInputVal] = useState<string>("");
     useEffect(() => {
         setInputVal(value || "")
     }, [value]);
   return (
-    <TouchableOpacity activeOpacity={0.5} style={[styles.container, isLocation && { height: HEIGHT(275)}, style]}>
+    <TouchableOpacity 
+        activeOpacity={0.5} 
+        style={[styles.container, isLocation && { height: HEIGHT(275)}, style]}
+        onPress={() => onPress ? onPress() : navigation.navigate(ScreenName.Detail, { item: item})}
+    >
         <View style={styles.containerImage}>
             <Image
                 source={item?.resources?.length > 0 ? {uri:  item?.resources[0]?.imageUrl} : require('app/assets/image/upload-error.png')}

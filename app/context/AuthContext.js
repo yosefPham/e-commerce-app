@@ -28,6 +28,7 @@ export const AuthProvider = ({children}) => {
         setIsLoading(false)
         const res = await logout()
         if (res.status === 'OK') {
+            delete axios.defaults.headers.common['Authorization'];
             AsyncStorage.removeItem('token')
             AsyncStorage.removeItem('userInfo')
         }

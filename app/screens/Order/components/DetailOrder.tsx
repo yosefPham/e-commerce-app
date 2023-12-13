@@ -10,7 +10,6 @@ import ItemOrder from "./ItemOrder";
 
 const DetailOrder = ({navigation, route}: any) => {
     const { item } = route.params;
-    console.log('route', route);
     return (
         <View style={{backgroundColor: R.colors.gray0}}>
             <Header

@@ -19,7 +19,7 @@ let route2 = [
         nameIcon: "card", 
         title: "Tài chính",
         backgroundColor: R.colors.yellow700,
-        routerName: ScreenName.MyProduct
+        routerName: ScreenName.Finance
     },
     { 
         nameIcon: "help-circle", 

@@ -31,7 +31,7 @@ const ItemHeader = ({navigation}: any) => {
       {useInfo && (
         <>
           <View style={styles.containerImage} >
-            {!useInfo?.avatarUrl ? 
+            {useInfo?.avatarUrl ? 
             <Image 
               style={styles.image} 
               source={{uri: useInfo?.avatarUrl}}

@@ -30,7 +30,7 @@ const ButtonText = (props: Props) => {
     const { title, onPress, customStyle, disabled, sizeIcon, icon, colorIcon, type, customTitle, isLoading, colorLoading} = props
     const color = type === E_TYPE_BUTTON.OUTLINE ? R.colors.primary : R.colors.white
     return (
-        <TouchableOpacity activeOpacity={0.6} onPress={onPress} style={[styles.container, customStyle, type === E_TYPE_BUTTON.OUTLINE ? OUTLINE : PRIMARY, isLoading && OPACITY, disabled && DISABLED]} disabled={disabled}>
+        <TouchableOpacity activeOpacity={0.6} onPress={onPress} style={[styles.container, type === E_TYPE_BUTTON.OUTLINE ? OUTLINE : PRIMARY, isLoading && OPACITY, disabled && DISABLED, customStyle]} disabled={disabled}>
             {isLoading && <Loading color={colorLoading ?? R.colors.white}/>}
             <Icon size={sizeIcon ? WIDTH(sizeIcon) : WIDTH(20)} name={icon ?? ''} color={disabled ? R.colors.grey500 : colorIcon} />
             <Text style={[styles.text, {color: color}, customTitle]}>{title}</Text>

@@ -42,6 +42,12 @@ const listFunction = [
     screenNameMove: ScreenName.Reviews
   },
   {
+    name: 'Ví điện tử',
+    iconName: 'wallet-outline',
+    color: R.colors.primary,
+    screenNameMove: ScreenName.Finance
+  },
+  {
     name: 'Thiết lập tài khoản',
     iconName: 'person-outline',
     color: R.colors.blue1B,
@@ -75,15 +81,25 @@ const Profile = ({navigation}: any) => {
       ToastAndroid.show(msg, ToastAndroid.TOP)
     }
   }
-  const getUserInfo = async () => {
-    const userInfoString: any = await AsyncStorage.getItem('userInfo')
-    const userInfoObject = JSON.parse(userInfoString);
-    setUserInfo(userInfoObject)
+  // const getUserInfo = async () => {
+  //   const userInfoString: any = await AsyncStorage.getItem('userInfo')
+  //   const userInfoObject = JSON.parse(userInfoString);
+  //   setUserInfo(userInfoObject)
+  // }
+  const getDataUser = async() => {
+    const user: any = await AsyncStorage.getItem('userInfo')
+    const userInfoObject = JSON.parse(user);
+    const res = await getAccount(userInfoObject?.id)
+    if (res?.data?.status === "OK") {
+      setUserInfo(res?.data?.data)
+    }
   }
+  useEffect(() => {
+      getDataUser()
+  }, [])
   
   useEffect(() => {
-    getUserInfo()
-  },[])
+  },[userInfo])
 
   const handleLogin = () => {
     notifyMessage('Vui lòng đăng nhập!')
@@ -99,16 +115,16 @@ const Profile = ({navigation}: any) => {
         isIconMessage={true}
         isSearch={false}
       />
-      <ItemInfo navigation={navigation}/>
+      <ItemInfo navigation={navigation} item={userInfo}/>
       <FlatList
         style={{width: '100%'}}
         data={listFunction}
         extraData={listFunction}
         renderItem={({item, index}) => {
           if (item?.iconName) {
-            return <ItemFunction item={item} onPress={() => userInfo ? navigation.navigate(item?.screenNameMove) : handleLogin()}/>
+            return <ItemFunction item={item} onPress={() => userInfo ? navigation.navigate(item?.screenNameMove, {headerText: item?.name, ...(index === 6 && {onFresh: getDataUser})}) : handleLogin()}/>
           }
-          return <ItemOrderStatus onPress={() => navigation.navigate(item?.screenNameMove)}/>
+          return <ItemOrderStatus onPress={() => userInfo ? navigation.navigate(item?.screenNameMove) : handleLogin()}/>
         }}
       />
     </View>
@@ -119,20 +135,20 @@ export default Profile
 
 const ItemOrderStatus = ({onPress}: any) => {
   return (
-    <TouchableOpacity activeOpacity={0.8} style={styles.container} onPress={onPress}>
+    <View style={styles.container} >
       {listStatus?.map((item, index) => {
         return (
-          <View style={{alignItems: 'center'}}>
+          <TouchableOpacity onPress={onPress} activeOpacity={0.4} style={{alignItems: 'center'}}>
             {index === 3 ? 
             <View style={styles.iconStar}>
               <Icon name={item?.iconName} size={15} color={R.colors.black50p}/>
             </View> : 
             <Icon name={item?.iconName} size={25} color={R.colors.black50p}/>}
             <Text style={styles.title}>{item?.statusName}</Text>
-          </View>
+          </TouchableOpacity>
         )
       })}
-    </TouchableOpacity>
+    </View>
   )
 }
 
