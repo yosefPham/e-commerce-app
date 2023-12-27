@@ -26,37 +26,43 @@ const ItemProduct: React.FC<Props> = (props: Props) => {
     useEffect(() => {
         setInputVal(value || "")
     }, [value]);
-  return (
+    // console.log('item', item)
+    return (
     <TouchableOpacity 
         activeOpacity={0.5} 
-        style={[styles.container, isLocation && { height: HEIGHT(275)}, style]}
-        onPress={() => onPress ? onPress() : navigation.navigate(ScreenName.Detail, { item: item})}
+        style={[styles.container, isLocation && { height: HEIGHT(275)}, style, !item && { backgroundColor: R.colors.gray0}]}
+        onPress={() => onPress ? onPress() : navigation.push(ScreenName.Detail, { item: item})}
+        disabled={!item}
     >
-        <View style={styles.containerImage}>
-            <Image
-                source={item?.resources?.length > 0 ? {uri:  item?.resources[0]?.imageUrl} : require('app/assets/image/upload-error.png')}
-                style={styles.image}
-            />
-        </View>
-        <View style={{paddingHorizontal: WIDTH(5), marginVertical: HEIGHT(5), alignItems: 'flex-start', width: '100%'}}>
-            <Text 
-                style={{fontSize: getFont(14), marginHorizontal: WIDTH(2), height: HEIGHT(35)}}
-                numberOfLines={2}
-                ellipsizeMode='tail'
-            >
-                {item?.name ?? "Áo Thun Bóng Đá Tay Vasco da Gama"}
-            </Text>
-            <View style={styles.footer}>
-                <Text style={{color: R.colors.primary, fontSize: getFont(18)}}>{formatCurrency(item?.standardPrice ?? 250000) ?? "đ250.000"}</Text>
-                <Text style={{fontSize: getFont(12)}}>Đã bán:{item?.price ?? 0}</Text>
-            </View>
-            {isLocation && (
-            <View style={styles.location}>
-                <Icon name='location-outline' size={14} color={R.colors.gray6B}/>
-                <Text style={{fontSize: getFont(12), color: R.colors.gray6B}}>{item?.location ?? 'Nước ngoài'}</Text>
-            </View>
-            )}
-        </View>
+        {item && (
+            <>
+                <View style={styles.containerImage}>
+                    <Image
+                        source={item?.resources?.length > 0 ? {uri:  item?.resources[0]?.imageUrl} : require('app/assets/image/upload-error.png')}
+                        style={styles.image}
+                    />
+                </View>
+                <View style={{paddingHorizontal: WIDTH(5), marginVertical: HEIGHT(5), alignItems: 'flex-start', width: '100%'}}>
+                    <Text 
+                        style={{fontSize: getFont(14), marginHorizontal: WIDTH(2), height: HEIGHT(35)}}
+                        numberOfLines={2}
+                        ellipsizeMode='tail'
+                    >
+                        {item?.name ?? "Áo Thun Bóng Đá Tay Vasco da Gama"}
+                    </Text>
+                    <View style={styles.footer}>
+                        <Text style={{color: R.colors.primary, fontSize: getFont(18)}}>{formatCurrency(item?.standardPrice ?? 250000) ?? "đ250.000"}</Text>
+                        <Text style={{fontSize: getFont(12)}}>Đã bán:{item?.price ?? 0}</Text>
+                    </View>
+                    {isLocation && (
+                    <View style={styles.location}>
+                        <Icon name='location-outline' size={14} color={R.colors.gray6B}/>
+                        <Text style={{fontSize: getFont(12), color: R.colors.gray6B}}>{item?.location ?? 'Nước ngoài'}</Text>
+                    </View>
+                    )}
+                </View>
+            </>
+        )}
     </TouchableOpacity>
   )
 }

@@ -1,4 +1,5 @@
 const ScreenName = {
+    Launching: "Launching",
     Login: "Login",
     Register: "Register",
     ActiveAccount: "ActiveAccount",
@@ -27,6 +28,13 @@ const ScreenName = {
     PaymentMethods: "PaymentMethods",
     Detail: "Detail",
     TransactionHistory: "TransactionHistory",
+    Extentions: "Extentions",
+    Account: "Account",
+    BankAccount: "BankAccount",
+    WalletManage: "WalletManage",
+    TransactionManage: "TransactionManage",
+    ProductManage: "ProductManage",
+    Notification: "Notification"
 }
 
 export default ScreenName

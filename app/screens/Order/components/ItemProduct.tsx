@@ -2,10 +2,11 @@ import React, {useEffect, useState} from "react"
 import {Image, StyleProp, StyleSheet, Text, TextInput, TextStyle, TouchableOpacity, View, ViewStyle} from "react-native"
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { CheckBox } from "@ui-kitten/components"
-// config
-// import { translate } from "@i18n"
+import { useNavigation } from "@react-navigation/native";
+
+import ScreenName from "./../../../navigation/screen-name";
 import R from "./../../../assets/R"
-import { formatCurrency, getFont, HEIGHT, WIDTH } from "./../../../configs/functions"
+import { formatCurrency, getFont, getWidth, HEIGHT, WIDTH } from "./../../../configs/functions"
 import Colors from "./../../../assets/colors";
 
 type Props = {
@@ -24,15 +25,16 @@ type Props = {
 }
 
 const ItemProduct: React.FC<Props> = (props: Props) => {
-  const { value, isSelected, onSelect, item } = props
-  const { product, quantity } = item
+    const navigation: any = useNavigation()
+    const { value, isSelected, onSelect, item, onDelete } = props
+    const { product, quantity } = item
     const [inputVal, setInputVal] = useState<string>("");
     useEffect(() => {
         setInputVal(value || "")
     }, [value]);
-  return (
-    <TouchableOpacity activeOpacity={0.5} style={[styles.container]}>
-        <View 
+    return (
+    <View style={[styles.container]}>
+        <TouchableOpacity 
             style={{
                 flexDirection: 'row', 
                 justifyContent: 'space-between', 
@@ -47,42 +49,54 @@ const ItemProduct: React.FC<Props> = (props: Props) => {
                 <MaterialCommunityIcons name="storefront-outline" size={25} color={R.colors.black75p} />
                 <Text style={{fontSize: getFont(15), fontWeight: '500'}}> {(product?.user?.firstName + ` ${product?.user?.lastName}`) ?? "Savislôke.vn"}</Text>
             </View>
-        </View>
-        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+        </TouchableOpacity>
+        <View style={{flexDirection: 'row', alignItems: 'center', width: "100%"}}>
             <View style={{marginRight: WIDTH(10)}}>
                 <CheckBox status='danger' checked={isSelected} onChange={(value) => onSelect && onSelect(value, item)} />
             </View>
             <View style={styles.containerProduct}>
-                <View style={styles.containerImage}>
+                <TouchableOpacity activeOpacity={0.6} style={styles.containerImage} onPress={() => navigation.navigate(ScreenName.Detail, { item: product})}>
                     <Image
                         source={{uri: product?.resources[0]?.imageUrl}}
                         style={styles.image}
                     />
-                </View>
-                <View style={{marginHorizontal: WIDTH(10), marginVertical: HEIGHT(5), width: "60%"}}>
+                </TouchableOpacity>
+                <View style={{marginHorizontal: WIDTH(10), marginVertical: HEIGHT(5), width: "49%"}}>
                     <Text 
                         style={{fontSize: getFont(14), marginHorizontal: WIDTH(2)}}
                         numberOfLines={2}
                         ellipsizeMode='tail'
                     >
-                        {product?.name ?? "Tws Tai Nghe Chụp Tai bluetooth 5.2"}
+                        {product?.name ?? "Tws Tai Nghe Chụp Tai bluetoothTai Nghe Chụp Tai bluetoothTai Nghe Chụp Tai bluetooth 5.2"}
                     </Text>
                     <View style={styles.footer}>
                         <Text style={{fontSize: getFont(15), color: R.colors.primary}}>{formatCurrency(product?.standardPrice ?? 250000)}</Text>
                     </View>
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
                         <View style={styles.location}>
-                            {/* <Icon name='albums-outline' size={14} color={R.colors.gray6B}/> */}
                             <Text style={{fontSize: getFont(12), color: R.colors.gray6B}}> Số lượng: {quantity ?? 0}</Text>
                         </View>
                     </View>
                 </View>
-                <View style={{marginHorizontal: WIDTH(10), marginVertical: HEIGHT(5), width: "20%"}}>
-                    <Text>Xoá</Text>
-                </View>
+                {onDelete && 
+                <TouchableOpacity 
+                    style={{
+                        marginHorizontal: WIDTH(10),
+                        marginVertical: HEIGHT(5),
+                        width: "10%",
+                        backgroundColor: R.colors.primary,
+                        height: "100%",
+                        justifyContent: "center",
+                        alignItems: "center",
+                    }}
+                    activeOpacity={0.6}
+                    onPress={() => onDelete && onDelete(product?.id)}
+                >
+                    <Text style={{color: R.colors.white, fontSize: getFont(13)}}>Xoá</Text>
+                </TouchableOpacity>}
             </View>
         </View>
-    </TouchableOpacity>
+    </View>
   )
 }
 
@@ -96,12 +110,13 @@ const styles = StyleSheet.create({
         paddingHorizontal: WIDTH(13),
         borderColor: R.colors.border,
         borderBottomWidth: 0.5,
+        width: getWidth()
     },
     containerProduct: {
         width: '100%',
         flexDirection: 'row',
         justifyContent: 'flex-start',
-        alignItems: 'flex-end',
+        alignItems: 'center',
         marginVertical: HEIGHT(5),
         height: HEIGHT(80),
     },

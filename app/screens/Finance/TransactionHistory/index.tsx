@@ -40,10 +40,11 @@ const TransactionHistory = ({navigation}: any) => {
                 extraData={listData}
                 showsVerticalScrollIndicator={false}
                 renderItem={({ item, index }: any) => {
+                    console.log('item', item)
                     return (
                         <ItemTransaction
                             item={item}
-                            iconName="wallet-outline"
+                            iconName={item?.type !== "BUY" ? "wallet-outline" : "card-outline"}
                             amountMoney={item?.amount}
                             dateTime={item?.createdDate}
                             type={item?.description}

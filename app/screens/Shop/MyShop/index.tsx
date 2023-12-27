@@ -1,12 +1,15 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { Header } from "./../../../components/Headers/Header";
 import ItemHeader from "../../Shop/Item/ItemHeader";
 import { getFont, HEIGHT, WIDTH } from "./../../../configs/functions";
 import R from "./../../../assets/R";
 import ScreenName from "./../../../navigation/screen-name";
+import { getAccount } from "./../../../apis/functions/user";
+import { E_ROLE_ORDER } from "./../../../types/emuns";
 
 let route2 = [
     { 
@@ -29,13 +32,22 @@ let route2 = [
     },
 ]
 const MyShop = ({navigation}: any) => {
+    const [shopInfo, setShopInfo] = useState<any>()
     let route1 = [
-        { value: "0", title: "Chờ lấy hàng" },
-        { value: "0", title: "Đơn huỷ" },
-        { value: "0", title: "Trả hàng/Hoàn tiền" },
-        { value: "0", title: "Phản hồi đánh giá" },
+        { value: "0", title: "Duyệt đơn" },
+        { value: "2", title: "Chờ lấy hàng" },
+        { value: "3", title: "Đơn đang giao" },
+        { value: "4", title: "Hoàn thành" },
     ]
-    
+    const getShopInfo = async () => {
+        const userInfoString: any = await AsyncStorage.getItem('userInfo')
+        const userInfoObject = JSON.parse(userInfoString);
+        const res = await getAccount(userInfoObject?.id)
+        setShopInfo(res?.data?.data)
+    }
+    useEffect(() => {
+        getShopInfo()
+    }, [])
     return (
         <View>
             <Header
@@ -44,9 +56,13 @@ const MyShop = ({navigation}: any) => {
                 headerText={'Shop của tôi'}
                 noBorder={true}
             />
-            <ItemHeader/>
+            <ItemHeader item={shopInfo}/>
             <View  style={styles.container}>
-                <TouchableOpacity activeOpacity={0.6} style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+                <TouchableOpacity
+                    activeOpacity={0.6}
+                    style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}
+                    onPress={() => navigation.navigate(ScreenName.Order, {index: 0, role: E_ROLE_ORDER.SELL})}
+                >
                     <Text style={{fontSize: getFont(16), fontWeight: '600'}}>Đơn mua</Text>
                     <Text style={{fontSize: getFont(12), color: R.colors.black50p}}>Xem lịch sử đơn hàng <Icon name="chevron-forward-outline"/></Text>
                 </TouchableOpacity>
@@ -57,9 +73,9 @@ const MyShop = ({navigation}: any) => {
                     showsVerticalScrollIndicator={false}
                     renderItem={({ item, index }: any) => {
                     return (
-                        <TouchableOpacity activeOpacity={0.6} style={styles.statusPr}>
-                            <Text style={{fontSize: getFont(18), paddingTop: HEIGHT(15)}}>{item?.value}</Text>
-                            <Text style={{fontSize: getFont(12), color: R.colors.black50p}}>{item?.title}</Text>
+                        <TouchableOpacity onPress={() => navigation.navigate(ScreenName.Order, {index: index, role: E_ROLE_ORDER.SELL})} activeOpacity={0.6} style={styles.statusPr}>
+                            {/* <Text style={{fontSize: getFont(18), paddingTop: HEIGHT(15)}}>{item?.value}</Text> */}
+                            <Text style={{fontSize: getFont(13), color: R.colors.black50p}}>{item?.title}</Text>
                         </TouchableOpacity>
                     )
                     }}
@@ -118,7 +134,7 @@ const styles = StyleSheet.create({
         marginHorizontal: WIDTH(3),
         flexDirection: 'column', 
         alignItems: 'center', 
-        justifyContent: 'flex-start', 
+        justifyContent: 'center', 
         backgroundColor: R.colors.gray1,
     },
     icon: {

@@ -1,4 +1,4 @@
-import { Dimensions, Alert, Linking } from "react-native"
+import { Dimensions, Alert, Linking, Platform, ToastAndroid } from "react-native"
 import { initialWindowMetrics } from "react-native-safe-area-context"
 import moment from "moment"
 import { colors } from "../assets"
@@ -71,3 +71,23 @@ export const formatCurrency = (amount: number) => {
     currency: 'VND',
   });
 };
+
+export const formatTimeVN = (dateTime: any) => {
+  const time = new Date()
+  const utcMoment = moment.utc(dateTime ?? time, "YYYY-MM-DDTHH:mm:ss.SS");
+    // Chuyển đổi về múi giờ của Việt Nam (+7 giờ)
+  const vietnamMoment = utcMoment.utcOffset(7);
+  return vietnamMoment.format("HH:mm DD/MM/YYYY");
+}
+
+export const notifyMessage = (msg: string) => {
+  if (Platform.OS === 'android') {
+    ToastAndroid.show(msg, ToastAndroid.TOP)
+  }
+}
+
+export const formatString = (inputString: string) =>  {
+  const formattedString = inputString.toLowerCase().replace(/\s+/g, '');
+
+  return formattedString;
+}

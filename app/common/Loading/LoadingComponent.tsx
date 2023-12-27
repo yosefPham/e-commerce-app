@@ -11,14 +11,15 @@ type Props = {
   styleChildren?: StyleProp<ViewStyle>,
   styleLoadingImage?: StyleProp<ImageStyle>,
   children?: React.ReactNode
+  size?: number
 }
 
 const LoadingComponent = (props: Props) => {
-  const { style, isLoading,children,styleLoadingImage,styleChildren } = props
+  const { style, isLoading,children,styleLoadingImage,styleChildren, size } = props
   if (!isLoading) return null
   return (
     <View style={[styles.loadingContainer, StyleSheet.absoluteFill, style]}>
-      <ActivityIndicator size={35} color={R.colors.black0}/>
+      <ActivityIndicator size={size ?? 35} color={R.colors.black0}/>
       <View style={[styles.children, styleChildren]}>
         {children}
       </View>

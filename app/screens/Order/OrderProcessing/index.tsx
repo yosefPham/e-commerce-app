@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View, Modal, BackHandler } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { Image, StyleSheet, Text, TouchableOpacity, View, Modal, BackHandler, Alert, Platform, ToastAndroid } from "react-native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
 import { getListAddressUser } from "../../../apis/functions/user";
@@ -7,17 +7,20 @@ import ItemFunction from "../../../components/Item/ItemFunction";
 import ScreenName from "../../../navigation/screen-name";
 import { Header } from "../../../components/Headers/Header";
 import R from "../../../assets/R";
-import { formatCurrency, getFont, getHeight, getWidth, HEIGHT, WIDTH } from "../../../configs/functions";
+import { formatCurrency, getFont, getHeight, getWidth, HEIGHT, notifyMessage, WIDTH } from "../../../configs/functions";
 import ItemProduct from "../components/ItemProduct";
 import InputText from "../../../components/Input/InputText";
 import ButtonText from "../../../components/Button/ButtonText";
-import { E_TYPE_BUTTON } from "../../../types/emuns";
+import { E_TYPE_BUTTON, E_TYPE_PAYMENT } from "../../../types/emuns";
+import { postOrder } from "../../../apis/functions/product";
 
 const OrderProcessing = ({navigation, route}: any) => {
-    const { item } = route?.params
+    const note = useRef<string>()
+    const paymentType = useRef<string>("")
+    const { item, cartId } = route?.params
     const { product, quantity } = item
     const [address, setAddress] = useState<any>([])
-    const [payMentMethods, setPayMentMethods] = useState<string>("Ví điện tử")
+    const [payMentMethods, setPayMentMethods] = useState<string>()
     const [loading, setLoading] = useState<boolean>(false)
     const getAddress = async() => {
         const res = await getListAddressUser()
@@ -30,14 +33,73 @@ const OrderProcessing = ({navigation, route}: any) => {
     const hanleSelectedAddress = (item: any) => {
         setAddress(item)
     }
-    const onChangeValue = (value: string, index: number) => {
-
+    const onChangeValue = (value: string) => {
+        note.current = value
     }
     const handlePaymentMethods = (payment: string) => {
+        if (payment === "Ví điện tử") {
+            paymentType.current = E_TYPE_PAYMENT.WALLET
+        } else {
+            paymentType.current = E_TYPE_PAYMENT.CASH
+        }
         setPayMentMethods(payment)
     }
     const handleSend = async (pay: string) => {
         setLoading(true)
+    }
+    const handleCheckInfo = () => {
+        if(!address?.id) {
+            notifyMessage("Vui lòng điền thông tin địa chỉ nhận hàng!")
+            return false
+        } else if (paymentType.current?.trim() === "") {
+            notifyMessage("Vui lòng chọn phương thức thanh toán!")
+            return false
+        }
+        console.log('paymentType', paymentType.current)
+        return true
+    }
+    const handleOrder = async () => {
+        const isValid = handleCheckInfo()
+        console.log(isValid)
+        if (isValid) {
+            Alert.alert(
+                'Cảnh báo',
+                `Bạn có xác nhận đặt hàng đơn ${formatCurrency((item?.product?.standardPrice ?? 1) * (item?.quantity ?? 1))} không?`,
+                [
+                {
+                    text: 'Huỷ bỏ',
+                    onPress: () => {},
+                    style: 'cancel',
+                },
+                {
+                    text: 'Xác nhận',
+                    onPress: async () => {
+                        try {
+                                setLoading(true)
+                                const formData: any = {
+                                    cartId: cartId,
+                                    productIds: [product?.id],
+                                    deliveryDestinationId: address?.id,
+                                    note: note.current,
+                                    paymentType: paymentType.current
+                                }
+                                const res = await postOrder(formData)
+                                console.log('res', res)
+                                if (res?.status === "OK") {
+                                    notifyMessage(res?.message ?? "Tạo đơn thành công")
+                                    navigation.navigate(ScreenName.Order)
+                                }
+                                console.log('res2', res, formData)
+                                setLoading(false)
+                            } catch (err) {
+                                setLoading(false)
+                            }
+                        },
+                    },
+                ],
+                { cancelable: false }
+            );
+        }
     }
     useEffect(() => {
         getAddress()
@@ -61,12 +123,17 @@ const OrderProcessing = ({navigation, route}: any) => {
                 customStyles={{backgroundColor: R.colors.white}}
                 body={
                     <View style={styles.address}>
-                        <Text style={{paddingRight: HEIGHT(5)}}>
-                            {address?.recipientName ?? "Phạm Văn Hoàn"} | {address?.phone ?? "0395 474 001"}
-                        </Text>
-                        <Text style={{fontSize: getFont(14), marginBottom: HEIGHT(10)}}>
-                            {`${address?.detail ?? ''}\n${address?.ward ?? ''} ${address?.district ?? ''} ${address?.province ?? ''}`}
-                        </Text>
+                        {address ? (
+                        <>
+                            <Text style={{paddingRight: HEIGHT(5)}}>
+                                {address?.recipientName ?? "Phạm Văn Hoàn"} | {address?.phone ?? "0395 474 001"}
+                            </Text>
+                            <Text style={{fontSize: getFont(14), marginBottom: HEIGHT(10)}}>
+                                {`${address?.detail ?? ''}\n${address?.ward ?? ''} ${address?.district ?? ''} ${address?.province ?? ''}`}
+                            </Text>
+                        </>
+
+                        ) : <Text style={{color: R.colors.primary}}>Thiết lập ngay</Text>}
                     </View>
                 }
             />
@@ -115,12 +182,11 @@ const OrderProcessing = ({navigation, route}: any) => {
                 customStyle={{paddingHorizontal: WIDTH(15)}}
                 headerText="Tin nhắn:"
                 placeholder="Lưu ý cho người bán" 
-                onChangeValue={(value) => onChangeValue(value, 0)}
+                onChangeValue={(value) => onChangeValue(value)}
             />
             <InputText
                 customStyle={{paddingHorizontal: WIDTH(15)}}
                 headerText="Tổng số tiền:"
-                onChangeValue={(value) => onChangeValue(value, 0)}
                 disabled
                 defaultValue={formatCurrency((item?.product?.standardPrice ?? 1) * (item?.quantity ?? 1))}
                 customInputStyle={{color: R.colors.primary, fontSize: getFont(16), fontWeight: '600'}}
@@ -131,12 +197,19 @@ const OrderProcessing = ({navigation, route}: any) => {
                     name: 'Phương thức thanh toán',
                     color: R.colors.primary
                 }} 
-                onPress={() => navigation.navigate(ScreenName.PaymentMethods, { onPress: handlePaymentMethods, totalAmount: (item?.product?.standardPrice ?? 1) * (item?.quantity ?? 1)})}
+                onPress={() => navigation.navigate(ScreenName.PaymentMethods, { 
+                    onPress: handlePaymentMethods, 
+                    totalAmount: (item?.product?.standardPrice ?? 1) * (item?.quantity ?? 1)
+                })}
                 customStyles={{backgroundColor: R.colors.white, marginTop: HEIGHT(5)}}
                 body={
-                    <View style={{marginTop: HEIGHT(10), marginLeft: HEIGHT(30)}}>
-                        <Text style={{color: R.colors.primary, opacity: 0.7}}>{payMentMethods}</Text>
-                    </View>
+                    <>
+                    {payMentMethods && (
+                        <View style={{marginTop: HEIGHT(10), marginLeft: HEIGHT(30)}}>
+                            <Text style={{color: R.colors.primary, opacity: 0.7}}>{payMentMethods}</Text>
+                        </View>
+                    )}
+                    </>
                 }
             />
             <ItemFunction 
@@ -172,7 +245,7 @@ const OrderProcessing = ({navigation, route}: any) => {
                 <ButtonText
                     title="Đặt hàng"
                     type={E_TYPE_BUTTON.PRIMARY}
-                    onPress={handleSend}
+                    onPress={handleOrder}
                     customStyle={styles.buttonText}
                     customTitle={{fontSize: getFont(16), fontWeight: '600'}}
                     // disabled={disabled}

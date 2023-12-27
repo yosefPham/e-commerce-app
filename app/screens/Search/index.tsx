@@ -6,7 +6,7 @@ import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityI
 import { List } from '@ui-kitten/components';
 
 import R from '../../assets/R';
-import { getListProductClient } from '../../apis/functions/product';
+import { getListProductClient, getProductSearch } from '../../apis/functions/product';
 import { Header } from '../../components/Headers/Header';
 import { getWidth, HEIGHT, WIDTH } from '../../configs/functions';
 import { E_TYPE_INPUT } from '../../types/emuns';
@@ -34,27 +34,36 @@ const Search = ({ navigation }: any) => {
   const getData = async () => {
     try {
       setLoading(true)
-      const res = await getListProductClient(currentPage.current, 6, "id", textSearch)
-      setListProduct(res?.data?.data.content)
-      setTotalPages(res?.data?.data.totalPages)
+      const res = await getProductSearch(textSearch)
+      if (res?.data?.data.length % 2 !== 0) {
+        setListProduct([...res?.data?.data, null])
+      } else {
+        setListProduct(res?.data?.data)
+      }
+      setTotalPages(res?.data?.data?.totalPages)
     } catch (err) {
       console.log(err)
     } finally {
       setLoading(false)
     }
+  }
+  const getDataSearch = async () => {
+    const res = await getProductSearch(textSearch)
+    setListProduct(res?.data?.data)
   }
   const getMoreData = async () => {
     try {
       setLoading(true)
       // currentPage.current = 2
-      const res = await getListProductClient(currentPage.current, 6, "id", textSearch)
-      setListProduct([...listProduct, ...res?.data?.data.content])
+      const res = await getProductSearch(textSearch)
+      setListProduct([...listProduct, ...res?.data?.data])
     } catch (err) {
       console.log(err)
     } finally {
       setLoading(false)
     }
   }
+  console.log('list product', listProduct)
   const onLoadMore = () => {
     if (currentPage.current < totalPages) {
       currentPage.current = currentPage.current + 1
@@ -90,11 +99,11 @@ const Search = ({ navigation }: any) => {
               extraData={listProduct}
               showsVerticalScrollIndicator={false}
               renderItem={({ item, index }: any) => {
-                if (listProduct.length === index + 1 && listProduct.length % 2 !== 0) {
-                  return <View/>
-                }
+                // if (listProduct.length === index + 1 && listProduct.length % 2 !== 0) {
+                //   return <View/>
+                // }
                 return (
-                  <ItemProduct key={index} item={item ?? {}} isLocation={true}/>
+                  <ItemProduct key={index} item={item} isLocation={true}/>
                 )
               }}
               numColumns={getWidth() >= 300 ? 2 : 1}
@@ -106,7 +115,7 @@ const Search = ({ navigation }: any) => {
               onRefresh={onRefresh}
               refreshing={loading}
               ListFooterComponent={<View style={R.themes.gap} />}
-              onEndReached={onLoadMore}
+              // onEndReached={onLoadMore}
               ListEmptyComponent={<ItemEmpty/>}
               // ListFooterComponent={loadMore && <LoadMore />}
             />
@@ -167,20 +176,31 @@ const Search = ({ navigation }: any) => {
       </View>
     )
   }
-  const handleSearchProduct = () => {
-    onRefresh()
-  }
+  useEffect(() => {
+    let timeoutId: any;
+    const handleInput = () => {
+      clearTimeout(timeoutId);
+
+      timeoutId = setTimeout(() => {
+        getData()
+      }, 500);
+    };
+    handleInput();
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [textSearch]);
   return (
     <View style={{ flex: 1, justifyContent: 'center'}}>
       <Header
         headerText={undefined} 
         isBack={true}
         isIconFilter={true}
-        typeInput={E_TYPE_INPUT.BORDER}
         style={{borderColor: R.colors.white}}
         isFocusInput={true}
-        onChangeText={(value: string) => setTextSearch(value)}
-        onSubmit={onRefresh}
+        onChangeText={(value: string) => {
+          setTextSearch(value)
+        }}
       />
       <View style={styles.container}>
         <TabView

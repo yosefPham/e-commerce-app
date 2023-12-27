@@ -21,7 +21,12 @@
       "adaptiveIcon": {
         "foregroundImage": "./app/assets/image/icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.kientruchanoi",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./app/assets/image/icon.png"
@@ -33,7 +38,12 @@
           "photosPermission": "The app accesses your photos to let you share them with your friends."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "3dc11c63-e2de-4aca-8a13-42dfacd7750f"
+      }
+    }
   },
   "name": "E-commerce",
   "displayName": "E-commerce"

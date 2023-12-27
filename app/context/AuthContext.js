@@ -3,17 +3,18 @@ import { rootServerInstance } from "../../app/apis/helper";
 import axios from "axios";
 import React, {createContext, useEffect, useState} from "react";
 import { login, logout, signup } from "../../app/apis/functions/user"
-import Loading from "../../app/components/Loading/Loading";
-import R from "../../app/assets/R";
 
 export const AuthContext = createContext()
 
 export const AuthProvider = ({children}) => {
+    
     const [isLoading, setIsLoading] = useState(true)
     const [token, setToken] = useState()
+    const [role, setRole] = useState()
     const handleLogin = async (formData) => {
         const res = await login(formData)
         if (res?.status === "OK") {
+            setRole(res?.userResponse?.role)
             setIsLoading(false)
             setToken(res?.data?.accessToken)
             rootServerInstance.setHeader("Authorization", `Bearer ${res?.data?.accessToken}`)
@@ -28,12 +29,21 @@ export const AuthProvider = ({children}) => {
         setIsLoading(false)
         const res = await logout()
         if (res.status === 'OK') {
-            delete axios.defaults.headers.common['Authorization'];
+            rootServerInstance.setHeader("Authorization", null)
             AsyncStorage.removeItem('token')
             AsyncStorage.removeItem('userInfo')
+            setRole()
         }
         return res
-    }   
+    }
+    const checkRole = async () => {
+        const user = await AsyncStorage.getItem('userInfo')
+        const userInfo = JSON.parse(user);
+        console.log('user info', userInfo)
+        if (userInfo) {
+            setRole(userInfo?.role)
+        }
+    }  
     const isLoggedIn = async () => {
         try {
             setIsLoading(true);
@@ -50,12 +60,12 @@ export const AuthProvider = ({children}) => {
     }
 
     useEffect(() => {
-        console.log('token: ' + token)
+        // console.log('token: ' + token)
         isLoggedIn()
+        checkRole()
     }, [])
     return (
-        <AuthContext.Provider value={{handleLogin, logoutAccount, token}}>
-            {isLoading && <Loading color={R.colors.white}/>}
+        <AuthContext.Provider value={{handleLogin, logoutAccount, token, role, setRole}}>
             {children}
         </AuthContext.Provider>
     )

@@ -114,6 +114,7 @@ const ItemAddress = ({item, onDel, navigation, getData, onPress}: any) => {
         <Text style={{fontSize: getFont(16), color: R.colors.gray8B, paddingLeft: HEIGHT(5)}}>{item?.phone ?? "0395 474 001"}</Text>
       </View>
       <Text style={{fontSize: getFont(14), color: R.colors.gray8B, marginBottom: HEIGHT(10)}}>{`${item?.detail ?? ''} ${item?.ward ?? ''} ${item?.district ?? ''} ${item?.province ?? ''}`}</Text>
+      {item?.default && <Text style={{color: R.colors.primary, fontSize: getFont(13), marginBottom: HEIGHT(10)}}>Mặc định</Text>}
       {!onPress && 
       <View style={{flexDirection: 'row', paddingTop: HEIGHT(5), borderTopWidth: 0.5, borderTopColor: R.colors.gray50, justifyContent: 'flex-end'}}>
         <TouchableOpacity onPress={() => onDel(item?.id)}>

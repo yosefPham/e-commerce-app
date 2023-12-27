@@ -1,0 +1,39 @@
+{
+    "project_info": {
+      "project_number": "723628015267",
+      "project_id": "lender-394509",
+      "storage_bucket": "lender-394509.appspot.com"
+    },
+    "client": [
+      {
+        "client_info": {
+          "mobilesdk_app_id": "1:723628015267:android:5fa16f8c0b928b45874916",
+          "android_client_info": {
+            "package_name": "com.kientruchanoi"
+          }
+        },
+        "oauth_client": [
+          {
+            "client_id": "723628015267-cmhrdtg9p626bgvpo3uit76o8quf45af.apps.googleusercontent.com",
+            "client_type": 3
+          }
+        ],
+        "api_key": [
+          {
+            "current_key": "AIzaSyAdDhIXyHw03eXYkI_ZQibE9GsDmQo7Cyo"
+          }
+        ],
+        "services": {
+          "appinvite_service": {
+            "other_platform_oauth_client": [
+              {
+                "client_id": "723628015267-cmhrdtg9p626bgvpo3uit76o8quf45af.apps.googleusercontent.com",
+                "client_type": 3
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "configuration_version": "1"
+}

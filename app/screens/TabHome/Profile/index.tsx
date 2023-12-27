@@ -7,7 +7,7 @@ import { E_TYPE_INPUT } from '../../../types/emuns';
 import { Header } from '../../../components/Headers/Header';
 import ScreenName from '../../../navigation/screen-name';
 import ItemInfo from './Item/ItemInfo';
-import { getFont, HEIGHT, WIDTH } from '../../../configs/functions';
+import { getFont, HEIGHT, notifyMessage, WIDTH } from '../../../configs/functions';
 import ItemFunction from './Item/ItemFunction';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getAccount } from '../../../apis/functions/user';
@@ -69,18 +69,13 @@ const listStatus = [
     iconName: 'bicycle',
   },
   {
-    statusName: 'Đánh giá',
-    iconName: 'star-outline',
+    statusName: 'Huỷ đơn',
+    iconName: 'archive-outline',
   }
 ]
 
 const Profile = ({navigation}: any) => {
   const [userInfo, setUserInfo] = useState<any>()
-  const notifyMessage = (msg: string) => {
-    if (Platform.OS === 'android') {
-      ToastAndroid.show(msg, ToastAndroid.TOP)
-    }
-  }
   // const getUserInfo = async () => {
   //   const userInfoString: any = await AsyncStorage.getItem('userInfo')
   //   const userInfoObject = JSON.parse(userInfoString);
@@ -124,7 +119,7 @@ const Profile = ({navigation}: any) => {
           if (item?.iconName) {
             return <ItemFunction item={item} onPress={() => userInfo ? navigation.navigate(item?.screenNameMove, {headerText: item?.name, ...(index === 6 && {onFresh: getDataUser})}) : handleLogin()}/>
           }
-          return <ItemOrderStatus onPress={() => userInfo ? navigation.navigate(item?.screenNameMove) : handleLogin()}/>
+          return <ItemOrderStatus onPress={(index: number) => userInfo ? navigation.navigate(item?.screenNameMove, {index: index}) : handleLogin()}/>
         }}
       />
     </View>
@@ -138,12 +133,8 @@ const ItemOrderStatus = ({onPress}: any) => {
     <View style={styles.container} >
       {listStatus?.map((item, index) => {
         return (
-          <TouchableOpacity onPress={onPress} activeOpacity={0.4} style={{alignItems: 'center'}}>
-            {index === 3 ? 
-            <View style={styles.iconStar}>
-              <Icon name={item?.iconName} size={15} color={R.colors.black50p}/>
-            </View> : 
-            <Icon name={item?.iconName} size={25} color={R.colors.black50p}/>}
+          <TouchableOpacity key={index} onPress={() => onPress(index)} activeOpacity={0.4} style={{alignItems: 'center'}}>
+            <Icon name={item?.iconName} size={25} color={R.colors.black50p}/>
             <Text style={styles.title}>{item?.statusName}</Text>
           </TouchableOpacity>
         )

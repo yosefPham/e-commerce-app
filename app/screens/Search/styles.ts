@@ -9,11 +9,6 @@ const styles = StyleSheet.create({
     width: "100%",
     flex: 1,
   },
-  // flex: {
-  //   alignItems: "center",
-  //   flex: 1,
-  //   paddingBottom: HEIGHT(16),
-  // },
   flex: {
     alignItems: "center",
     flex: 1,
@@ -37,12 +32,6 @@ const styles = StyleSheet.create({
     height: WIDTH(24),
     width: WIDTH(24),
   },
-  // row: {
-  //   alignItems: "flex-end",
-  //   // backgroundColor: R.colors.white,
-  //   flex: 1,
-  //   justifyContent: "space-around",
-  // },
   row: {
     alignItems: "flex-end",
     flex: 1,
@@ -50,25 +39,15 @@ const styles = StyleSheet.create({
     borderBottomWidth: WIDTH(0.5),
     borderBottomColor: R.colors.borderD,
   },
-  // tabContainer: {
-  //   backgroundColor: R.colors.white,
-  //   paddingTop: HEIGHT(12),
-  // },
   tabContainer: {
     backgroundColor: R.colors.white,
-    // paddingBottom: HEIGHT(16),
     paddingTop: HEIGHT(8),
   },
-  // text: {
-  //   color: R.colors.gray5,
-  // },
   text: {
     color: R.colors.gray5,
-    // fontFamily: R.fonts.InterMedium,
     fontSize: getFont(12),
     fontWeight: "500",
     lineHeight: getLineHeight(16),
-    // paddingBottom: HEIGHT(16),
     paddingTop: HEIGHT(5),
   },
   columnWrapperStyle: { justifyContent: "flex-start"},

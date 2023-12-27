@@ -1,18 +1,19 @@
 import React, { useState, useEffect, useRef } from "react"
 import { View, TouchableOpacity, FlatList, Text } from "react-native"
 import { TabView } from "react-native-tab-view"
-
 import Icon from "react-native-vector-icons/Ionicons"
-import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons"
+
 import styles from "./styles"
 import R from "../../assets/R"
 import Home from "./Home"
 import Profile from "./Profile"
 import { WIDTH } from "../../configs/functions"
+import Notification from "./Notification"
+import { getNotifications } from "../../apis/functions/user"
 const route = [
-  { key: "1", title: "Home" },
-  { key: "2", title: "Thông báo" },
-  { key: "3", title: "Tôi" },
+  { key: "0", title: "Home" },
+  { key: "1", title: "Thông báo" },
+  { key: "2", title: "Tôi" },
 ]
 const TabMain = (props : any) => {
   const { navigation, route: rot } = props
@@ -21,9 +22,6 @@ const TabMain = (props : any) => {
   const [routes, setRoutes] = useState(route)
   const timeOut = useRef(null)
   const [isDisable, setIsDisable] = useState(false)
-//   useEffect(() => {
-//     global.isOpened = true
-//   }, [])
   useEffect(() => {
     onChangeIndex(initIndex)
   }, [initIndex])
@@ -35,21 +33,20 @@ const TabMain = (props : any) => {
     }
   }
   const renderScene = ({ route }: { route: { key: string } }) => {
-    switch (route.key) {
-      case "1":
-        return (<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Home navigation={navigation}/>
-      </View>)
-      case "2":
-        return (<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Text>Notifycaton Screensssss</Text>
-      </View>)
-      case "3":
-        return (<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+    if (route.key === "2") {
+      return (<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
         <Profile navigation={navigation}/>
       </View>)
-      default:
-        return null
+    } else if (route.key === "1" && currentIndex.toString() === "1") {
+      return (<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <Notification/>
+      </View>)
+    } else if (route.key === "0" && currentIndex.toString() === "0") {
+      return (<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <Home navigation={navigation}/>
+      </View>)
+    } else {
+      return null
     }
   }
 
@@ -107,11 +104,11 @@ export default TabMain
 
 const getIcon = (index: any, color: string) => {
   switch (index) {
-    case "1":
+    case "0":
       return <Icon name={"ios-home-sharp"} size={WIDTH(20)} color={color} />
-    case "2":
+    case "1":
       return <Icon name={"ios-notifications"} size={WIDTH(20)} color={color} />
-    case "3":
+    case "2":
       return <Icon name={"person-circle-outline"} size={WIDTH(20)} color={color} />
       default:
       return <Icon name={"file-tray-stacked"} size={WIDTH(20)} color={color} />

@@ -1,17 +1,21 @@
-import { Header } from "./../../../components/Headers/Header";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
+
+import { Header } from "./../../../components/Headers/Header";
 import InputHeader from "./../../../components/Input/InputHeader";
 import R from "./../../../assets/R";
-import { formatCurrency, getFont, HEIGHT, WIDTH, getHeight } from "./../../../configs/functions";
+import { formatCurrency, getFont, HEIGHT, WIDTH, getHeight, notifyMessage } from "./../../../configs/functions";
 import ButtonText from "./../../../components/Button/ButtonText";
 import { E_TYPE_BUTTON } from "./../../../types/emuns";
 import ScreenName from "./../../../navigation/screen-name";
 import ItemFunction from "./../../../components/Item/ItemFunction";
+import { postWithDrawRequest } from "./../../../apis/functions/Wallet";
 
-const Withdraw = ({navigation}: any) => {
+const Withdraw = ({navigation, route}: any) => {
+    const { onFresh } = route?.params
     const [value, setValue] = useState<number>(0)
     const [disable, setDisable] = useState<boolean>(true)
+    const [loading, setLoading] = useState<boolean>(false)
     useEffect(() => {
         if (value >= 50000) {
             setDisable(false)
@@ -19,6 +23,23 @@ const Withdraw = ({navigation}: any) => {
             setDisable(true)
         }
     }, [value])
+    const handleWithDrawRequest = async () => {
+        try {
+            setLoading(true)
+            const res = await postWithDrawRequest(value)
+            if (res.status === "OK") {
+                notifyMessage(res?.message)
+                onFresh && onFresh()
+                navigation.goBack()
+            } else {
+                alert(res.message)
+            }
+        } catch (e) {
+
+        } finally {
+            setLoading(false)
+        }
+    }
     return (
         <View style={{height: getHeight(), alignItems: 'center'}}>
             <Header
@@ -62,7 +83,7 @@ const Withdraw = ({navigation}: any) => {
             <ButtonText
               title="Rút về tài khoản ngân hàng"
               type={E_TYPE_BUTTON.PRIMARY}
-              onPress={() => navigation.navigate(ScreenName.Pay, { amount: value})}
+              onPress={handleWithDrawRequest}
               customStyle={styles.buttonText}
               customTitle={{fontSize: getFont(16), fontWeight: '600'}}
               disabled={disable}

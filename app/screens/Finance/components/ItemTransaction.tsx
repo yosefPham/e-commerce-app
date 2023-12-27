@@ -7,9 +7,11 @@ import { CheckBox } from "@ui-kitten/components"
 // config
 // import { translate } from "@i18n"
 import R from "./../../../assets/R"
-import { formatCurrency, getFont, getWidth, HEIGHT, WIDTH } from "./../../../configs/functions"
+import { formatCurrency, formatTimeVN, getFont, getWidth, HEIGHT, WIDTH } from "./../../../configs/functions"
 import Colors from "./../../../assets/colors";
 import moment from "moment";
+import ButtonText from "./../../../components/Button/ButtonText";
+import { E_STATUS_WALLET, E_TYPE_BUTTON } from "./../../../types/emuns";
 
 type Props = {
   item: any
@@ -17,59 +19,69 @@ type Props = {
   dateTime: string
   type: string
   iconName?: string
+  onConfirm?: any
 }
 
 const ItemTransaction = (props: Props) => {
-    const { amountMoney, dateTime, type, iconName, item } = props
-    const utcMoment = moment.utc(dateTime, "YYYY-MM-DDTHH:mm:ss.SS");
-    // Chuyển đổi về múi giờ của Việt Nam (+7 giờ)
-    const vietnamMoment = utcMoment.utcOffset(7);
-    const vietnamTime = vietnamMoment.format("HH:mm DD/MM/YYYY");
+    const { amountMoney, dateTime, type, iconName, item, onConfirm } = props
     return (
     <View 
         style={{
-            flexDirection: 'row',
-            alignItems: 'flex-start',
-            justifyContent: "space-between",
+            
             backgroundColor: R.colors.white,
-            paddingVertical: HEIGHT(20),
             paddingHorizontal: WIDTH(10),
             marginVertical: HEIGHT(5),
             borderTopWidth: 0.5,
             borderTopColor: R.colors.gray50,
-            borderBottomWidth: 0.5,
-            borderBottomColor: R.colors.gray50,
             width: "100%",
         }}
     >
-        <View style={{flexDirection: 'row', alignItems: 'flex-start', justifyContent: "space-between"}}>
-            <View 
-                style={{
-                    marginRight: WIDTH(10),
-                    padding: WIDTH(5),
-                    borderWidth: 0.5,
-                    borderColor: R.colors.gray50,
-                    borderRadius: WIDTH(30),
-                }}
-            >
-                <Icon name={iconName ?? "wallet-outline"} size={25} color={R.colors.primary}/>
-            </View>
-            <View>
-                <Text style={{fontSize: getFont(16), fontWeight: '500',marginBottom: HEIGHT(10)}}>
-                    {type ?? "Nạp tiền vào ví"}
-                </Text>
-                <Text>{vietnamTime}</Text>
-            </View>
-        </View>
-        <Text 
+        <View
             style={{
-                color: item?.balanceTemporary ? R.colors.yellow900 : R.colors.green00803D,
-                fontWeight: '500',
-                fontSize: getFont(17)
+                flexDirection: 'row',
+                alignItems: 'flex-start',
+                justifyContent: "space-between",
+                paddingVertical: HEIGHT(20),
             }}
         >
-            +{formatCurrency(amountMoney ?? 0)}
-        </Text>
+            <View style={{flexDirection: 'row', alignItems: 'flex-start', justifyContent: "space-between"}}>
+                <View 
+                    style={{
+                        marginRight: WIDTH(10),
+                        padding: WIDTH(5),
+                        borderWidth: 0.5,
+                        borderColor: R.colors.gray50,
+                        borderRadius: WIDTH(30),
+                    }}
+                >
+                    <Icon name={iconName ?? "wallet-outline"} size={25} color={R.colors.primary}/>
+                </View>
+                <View>
+                    <Text style={{fontSize: getFont(16), fontWeight: '500',marginBottom: HEIGHT(10)}}>
+                        {type ?? "Nạp tiền vào ví"}
+                    </Text>
+                    <Text>{formatTimeVN(dateTime)}</Text>
+                </View>
+            </View>
+            <Text 
+                style={{
+                    color: item?.balanceTemporary ? R.colors.yellow900 : item?.type === "BUY" ? R.colors.red700 :R.colors.green00803D,
+                    fontWeight: '500',
+                    fontSize: getFont(17)
+                }}
+            >
+                {item?.type === "BUY" ? "-" : "+"} {formatCurrency(amountMoney ?? 0)}
+            </Text>
+        </View>
+        {item?.status === E_STATUS_WALLET.WITHDRAW_CONFIRM && (
+            <View style={{alignItems: "flex-end", width: "100%", borderTopColor: R.colors.gray50, borderTopWidth: 0.5, paddingVertical: HEIGHT(5)}}>
+                <ButtonText
+                    title="Xác nhận"
+                    onPress={() => onConfirm && onConfirm()}
+                    type={E_TYPE_BUTTON.PRIMARY}
+                />
+            </View>
+        )}
     </View>
   )
 }

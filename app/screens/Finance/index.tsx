@@ -2,14 +2,15 @@ import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 
-import { formatCurrency, getFont, HEIGHT, WIDTH } from "../../configs/functions";
+import { formatCurrency, getFont, HEIGHT, notifyMessage, WIDTH } from "../../configs/functions";
 import R from "../../assets/R";
 import { Header } from "../../components/Headers/Header";
 import ScreenName from "../../navigation/screen-name";
 import ItemFunction from "../../components/Item/ItemFunction";
-import { getDetailWallet } from "../../apis/functions/Wallet";
+import { getDetailWallet, putWithDrawConfirm } from "../../apis/functions/Wallet";
 import ItemTransaction from "./components/ItemTransaction";
 import ItemEmpty from "../../components/Item/ItemEmpty";
+import { E_STATUS_WALLET } from "../../types/emuns";
 
 let route2 = [
     { 
@@ -39,6 +40,15 @@ const Finance = ({navigation, route}: any) => {
             setData(res?.data?.data)
         }
     }
+    const handleConfirm = async () => {
+        let res = await putWithDrawConfirm()
+        if (res?.status === "OK") {
+            notifyMessage(res?.message)
+            getDataWallet()
+        } else {
+            notifyMessage(res?.message ?? "Có lỗi xảy ra!")
+        }
+    }
     useEffect(() => {
         getDataWallet()
     }, [])
@@ -63,7 +73,7 @@ const Finance = ({navigation, route}: any) => {
                 }}
             >
                 <Text style={{color: R.colors.gray4B}}>Số dư tài khoản</Text>
-                <Text style={{fontSize: getFont(30), fontWeight: '600', color: R.colors.primary}}>{formatCurrency(data?.balance ?? 250000)}đ</Text>
+                <Text style={{fontSize: getFont(30), fontWeight: '600', color: R.colors.primary}}>{formatCurrency(data?.balance ?? 0)}đ</Text>
             </View>
             <View style={styles.containerFunc}>
                 {route2.map(route => {
@@ -95,14 +105,15 @@ const Finance = ({navigation, route}: any) => {
             {data?.balanceTemporary !== 0 ? (
             <View style={styles.wait}>
                 <Text style={{fontSize: getFont(16), paddingHorizontal: WIDTH(10), fontWeight: '500'}}>
-                    Đơn nạp tiền đang chờ xác nhận:
+                    Đơn đang chờ xác nhận:
                 </Text>
                 <ItemTransaction 
                     item={data}
-                    iconName="wallet-outline"
+                    iconName={data?.status === E_STATUS_WALLET.WITHDRAW_REQUEST ? "card" : data?.status === E_STATUS_WALLET.DEPOSIT_PENDING ? "wallet-outline" : "checkmark-circle"}
                     amountMoney={data?.balanceTemporary}
                     dateTime={data?.modifiedDate}
-                    type="Nạp tiền vào ví"
+                    onConfirm={handleConfirm}
+                    type={data?.status === E_STATUS_WALLET.WITHDRAW_REQUEST ? "Rút tiền" : data?.status === E_STATUS_WALLET.DEPOSIT_PENDING ? "Nạp tiền vào ví" : "Xác nhận đã nhận được tiền rút"}
                 />
             </View>
             ) : <ItemEmpty/>}

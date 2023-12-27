@@ -14,27 +14,16 @@ import { getAccount } from './../../../apis/functions/user';
 type Props = {
   item?: any,
 }
-const ItemHeader = ({navigation}: any) => {
-  const [useInfo, setUserInfo] = useState<any>()
-  const getUserInfo = async () => {
-    const userInfoString: any = await AsyncStorage.getItem('userInfo')
-    const userInfoObject = JSON.parse(userInfoString);
-    setUserInfo(userInfoObject)
-    const res = await getAccount(userInfoObject?.id)
-  }
-  useEffect(() => {
-    getUserInfo()
-    
-  },[])
+const ItemHeader = ({item}: Props) => {
   return (
-    <View style={[styles.container, !useInfo && { justifyContent: 'space-between', paddingBottom: HEIGHT(10)}]}>
-      {useInfo && (
+    <View style={[styles.container, !item && { justifyContent: 'space-between', paddingBottom: HEIGHT(10)}]}>
+      {item && (
         <>
           <View style={styles.containerImage} >
-            {useInfo?.avatarUrl ? 
+            {item?.avatarUrl ? 
             <Image 
               style={styles.image} 
-              source={{uri: useInfo?.avatarUrl}}
+              source={{uri: item?.avatarUrl}}
             /> : 
             <View style={styles.noImage} >
               <Icon name='person' color={R.colors.primary} size={40}/>
@@ -42,10 +31,10 @@ const ItemHeader = ({navigation}: any) => {
             
           </View>
           <View style={styles.info}>
-            <Text style={styles.username}>{`${useInfo?.firstName + " " + useInfo?.lastName }` ?? 'mainazir203'}</Text>
+            <Text style={styles.username}>{`${item?.firstName + " " + item?.lastName }` ?? 'mainazir203'}</Text>
             <View style={{flexDirection: 'row'}}>
-              <Text style={styles.follow}><Icon name='star-sharp' color={R.colors.yellow700} size={15}/> {useInfo?.reviews ?? "0.0"}/5.0</Text>
-              <Text style={styles.follow}> {useInfo?.followers ?? 0} Người theo dõi</Text>
+              <Text style={styles.follow}><Icon name='star-sharp' color={R.colors.yellow700} size={15}/> {item?.reviews ?? "0.0"}/5.0</Text>
+              <Text style={styles.follow}> {item?.followers ?? 0} Người theo dõi</Text>
             </View>
           </View>
         </>

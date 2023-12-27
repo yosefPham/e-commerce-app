@@ -17,7 +17,7 @@ import ItemEmpty from '../../../components/Item/ItemEmpty';
 const data = [1, 2, 1, 1, 1, 1]
 const Home = ({ navigation }: any) => {
   const { token } = useContext(AuthContext)
-  console.log('token', token)
+  // console.log('token2', token)
   const [listProduct, setListProduct] = useState<any[]>([])
   const [totalPages, setTotalPages] = useState<number>(0)
   const currentPage = useRef<number>(0)
@@ -92,7 +92,26 @@ const Home = ({ navigation }: any) => {
   }, [])
   useEffect(() => {
   }, [listProduct])
-  
+  // Can use this function below or use Expo's Push Notification Tool from: https://expo.dev/notifications
+  async function sendPushNotification(expoPushToken: any) {
+    const message = {
+      to: expoPushToken,
+      sound: 'default',
+      title: 'Original Title',
+      body: 'And here is the body!',
+      data: { someData: 'goes here' },
+    };
+
+    await fetch('https://exp.host/--/api/v2/push/send', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Accept-encoding': 'gzip, deflate',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(message),
+    });
+  }
   return (
     <View style={{ flex: 1, justifyContent: 'center', paddingVertical: HEIGHT(50) }}>
       <Header 
@@ -108,7 +127,7 @@ const Home = ({ navigation }: any) => {
           extraData={listProduct}
           ListHeaderComponent={
             <>
-              <TouchableOpacity activeOpacity={0.7} style={styles.gap}>
+              {/* <TouchableOpacity activeOpacity={0.7} style={styles.gap}>
                 <Text style={[styles.title, {fontWeight: '900'}]}>F<Icon name='flash' size={20} style={styles.flashIcon}/>ASH 
                   <Text style={{fontWeight: '500'}}> SALE </Text>{" "}
                   <Text style={styles.countdown}> {hours < 10 ? `0${hours}`: hours} </Text>{" : "}
@@ -141,7 +160,7 @@ const Home = ({ navigation }: any) => {
                 initialNumToRender={6}
                 style={styles.list}
                 showsHorizontalScrollIndicator={false}
-              />
+              /> */}
               <TouchableOpacity activeOpacity={0.7} style={styles.gap}>
                 <Text style={styles.title}>SHOP GẦN BẠN</Text>
                 <View style={styles.viewMore}>

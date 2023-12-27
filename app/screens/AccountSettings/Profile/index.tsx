@@ -10,7 +10,7 @@ import ScreenName from "../../../navigation/screen-name";
 import InputText from "../../../components/Input/InputText";
 import ButtonText from "../../../components/Button/ButtonText";
 import { E_TYPE_BUTTON } from "../../../types/emuns";
-import { getFont, getHeight, HEIGHT, WIDTH } from "../../../configs/functions";
+import { getFont, getHeight, HEIGHT, notifyMessage, WIDTH } from "../../../configs/functions";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Platform } from "react-native";
 import { getAccount, putAccount, putAvatar } from "../../../apis/functions/user";
@@ -25,11 +25,6 @@ const Profile = ({ navigation }: any) => {
     const [loadingSend, setLoadingSend] = useState<boolean>(false)
     const [userInfo, setUserInfo] = useState<any>()
 
-    const notifyMessage = (msg: string) => {
-        if (Platform.OS === 'android') {
-          ToastAndroid.show(msg, ToastAndroid.TOP)
-        }
-    }
     const getDataUser = async() => {
         const user: any = await AsyncStorage.getItem('userInfo')
         const userInfoObject = JSON.parse(user);
@@ -88,6 +83,7 @@ const Profile = ({ navigation }: any) => {
         }
     };
     const uploadImage = async (imageUri: string) => {
+        setLoading(true)
         const formData: any = new FormData();
         formData.append('image', {
             uri: imageUri,
@@ -96,7 +92,7 @@ const Profile = ({ navigation }: any) => {
         });
         try {
             const response = await putAvatar(formData);
-            console.log('response', response);
+            // console.log('response', response);
             if (response?.status === "OK") {
                 notifyMessage(response?.message)
                 getDataUser()
@@ -106,6 +102,8 @@ const Profile = ({ navigation }: any) => {
 
         } catch (error) {
             console.error('Upload error:', error);
+        } finally {
+            setLoading(false);
         }
     };
     
@@ -141,103 +139,90 @@ const Profile = ({ navigation }: any) => {
             setLoadingSend(false)
         }
     }
-    if (loading) {
-        return (
-            <View style={{height: getHeight()}}>
-                <Header
-                    isBack={true}
-                    isSearch={false}
-                    headerText={'Sửa hồ sơ'}
-                />
-                <LoadingComponent isLoading={loading}/>
-            </View>
-        )
-    } else {
-        return (
-            <View>
-                <Header
-                    isBack={true}
-                    isSearch={false}
-                    headerText={'Sửa hồ sơ'}
-                />
-                <TouchableOpacity activeOpacity={0.6}
-                    onPress={pickImage}
+    return (
+        <View>
+            <Header
+                isBack={true}
+                isSearch={false}
+                headerText={'Sửa hồ sơ'}
+            />
+            <TouchableOpacity activeOpacity={0.6}
+                onPress={pickImage}
+                style={{
+                    width: '100%', 
+                    alignItems: 'center', 
+                    height: HEIGHT(150), 
+                    backgroundColor: R.colors.primary,
+                    justifyContent: 'center'
+                }}
+            >
+                <View style={styles.containerImage}>
+                    {userInfo?.avatarUrl ? 
+                    <Image
+                        style={styles.image} 
+                        source={{uri: userInfo?.avatarUrl}}
+                    /> : 
+                    <View style={styles.noImage} >
+                        <Icon name='person' color={R.colors.primary} size={40}/>
+                    </View>}
+                </View>
+                <Text 
                     style={{
-                        width: '100%', 
-                        alignItems: 'center', 
-                        height: HEIGHT(150), 
-                        backgroundColor: R.colors.primary,
-                        justifyContent: 'center'
+                        color: R.colors.white,
+                        backgroundColor: R.colors.black30p,
+                        width:'100%',
+                        textAlign: 'center',
+                        position: 'absolute',
+                        bottom: 0,
+                        fontSize: getFont(13)
                     }}
                 >
-                    <View style={styles.containerImage}>
-                        {userInfo?.avatarUrl ? 
-                        <Image
-                            style={styles.image} 
-                            source={{uri: userInfo?.avatarUrl}}
-                        /> : 
-                        <View style={styles.noImage} >
-                            <Icon name='person' color={R.colors.primary} size={40}/>
-                        </View>}
-                    </View>
-                    <Text 
-                        style={{
-                            color: R.colors.white,
-                            backgroundColor: R.colors.black30p,
-                            width:'100%',
-                            textAlign: 'center',
-                            position: 'absolute',
-                            bottom: 0,
-                            fontSize: getFont(13)
-                        }}
-                    >
-                        Chạm để thay đổi
-                    </Text>
-                </TouchableOpacity>
-                <View style={{marginTop: HEIGHT(20), justifyContent: 'center'}}>
-                    <InputText
-                        headerText="Họ:"
-                        placeholder="Thiết lập ngay"
-                        defaultValue={userInfo?.firstName}
-                        onChangeValue={(value) => onChangeValue(value, 0)}
-                    />
-                    <InputText
-                        headerText="Tên:"
-                        defaultValue={userInfo?.lastName}
-                        placeholder="Thiết lập ngay"
-                        onChangeValue={(value) => onChangeValue(value, 1)}
-                    />
-                    <InputText 
-                        headerText="Bio:"
-                        placeholder="Thiết lập ngay" 
-                        defaultValue={userInfo?.about}
-                        onChangeValue={(value) => onChangeValue(value, 2)}
-                    />
-                    <InputText 
-                        headerText="Giới tính:"
-                        defaultValue={userInfo?.gender === 'UNDEFINE' ? '' : userInfo?.gender === "MALE" ? 'Nam' : userInfo?.gender === "FEMALE" ? 'Nữ' : ''}
-                        placeholder="Thiết lập ngay" 
-                        onChangeValue={(value) => onChangeValue(value, 3)}
-                    />
-                    <InputText 
-                        headerText="Email:"
-                        defaultValue={userInfo?.email}
-                        placeholder="Thiết lập ngay" 
-                        disabled={true}
-                    />
-                    <ButtonText
-                        title="Lưu lại" 
-                        onPress={handleEdit} 
-                        type={E_TYPE_BUTTON.PRIMARY} 
-                        customStyle={{width: '100%', height: HEIGHT(40), marginTop: HEIGHT(10)}}
-                        customTitle={{fontSize: getFont(16)}}
-                        isLoading={loadingSend}
-                    />
-                </View>
-                {/* <LoadingComponent isLoading={loading}/> */}
+                    Chạm để thay đổi
+                </Text>
+            </TouchableOpacity>
+            <View style={{marginTop: HEIGHT(20), justifyContent: 'center'}}>
+                <InputText
+                    headerText="Họ:"
+                    placeholder="Thiết lập ngay"
+                    defaultValue={userInfo?.firstName}
+                    onChangeValue={(value) => onChangeValue(value, 0)}
+                />
+                <InputText
+                    headerText="Tên:"
+                    defaultValue={userInfo?.lastName}
+                    placeholder="Thiết lập ngay"
+                    onChangeValue={(value) => onChangeValue(value, 1)}
+                />
+                <InputText 
+                    headerText="Bio:"
+                    placeholder="Thiết lập ngay" 
+                    defaultValue={userInfo?.about}
+                    onChangeValue={(value) => onChangeValue(value, 2)}
+                />
+                <InputText 
+                    headerText="Giới tính:"
+                    defaultValue={userInfo?.gender === 'UNDEFINE' ? '' : userInfo?.gender === "MALE" ? 'Nam' : userInfo?.gender === "FEMALE" ? 'Nữ' : ''}
+                    placeholder="Thiết lập ngay" 
+                    onChangeValue={(value) => onChangeValue(value, 3)}
+                />
+                <InputText 
+                    headerText="Email:"
+                    defaultValue={userInfo?.email}
+                    placeholder="Thiết lập ngay" 
+                    disabled={true}
+                />
+                <ButtonText
+                    title="Lưu lại" 
+                    onPress={handleEdit} 
+                    type={E_TYPE_BUTTON.PRIMARY} 
+                    customStyle={{width: '100%', height: HEIGHT(40), marginTop: HEIGHT(10)}}
+                    customTitle={{fontSize: getFont(16)}}
+                    isLoading={loadingSend}
+                />
             </View>
-        )
-    }
+            <LoadingComponent isLoading={loading}/>
+        </View>
+    )
 }
 
 export default Profile

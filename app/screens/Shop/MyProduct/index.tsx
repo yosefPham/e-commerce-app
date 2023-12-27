@@ -1,38 +1,40 @@
-import React, {useEffect, useState, useRef} from 'react';
+import React, {useEffect, useState, useRef, useContext} from 'react';
 import { View, Text, TouchableOpacity, FlatList, Platform, ToastAndroid } from 'react-native';
 import { TabView } from 'react-native-tab-view';
 
 import ButtonText from '../../../components/Button/ButtonText';
 import R from '../../../assets/R';
 import { Header } from '../../../components/Headers/Header';
-import { getFont, WIDTH } from '../../../configs/functions';
-import { E_TYPE_BUTTON } from '../../../types/emuns';
+import { getFont, notifyMessage, WIDTH } from '../../../configs/functions';
+import { ESystemRoles, E_TYPE_BUTTON } from '../../../types/emuns';
 // import ItemProducts from './components/ItemListProduct';
 import styles from './styles';
 import ScreenName from '../../../navigation/screen-name';
-import { delProduct, getListProductOwner } from '../../../apis/functions/product';
+import { delProduct, getListProductOwner, getProductsByAdmin } from '../../../apis/functions/product';
 import ItemProduct from './components/ItemProduct';
 import { List } from '@ui-kitten/components';
 import ItemEmpty from '../../../components/Item/ItemEmpty';
+import { AuthContext } from '../../../context/AuthContext';
 
-const route = [
+const tabName = [
 { key: "1", title: "Còn hàng" },
 { key: "2", title: "Hết hàng" },
 ]
-const Search = ({ navigation }: any) => {
+const Product = ({ navigation, route }: any) => {
+  const { role } = useContext(AuthContext)
+  console.log('role', role)
+  const headerText = route?.params?.headerText
   const initIndex = 0
   const [loading, setLoading] = useState<boolean>(false)
   const [currentIndex, setIndex] = useState(initIndex)
-  const [routes, setRoutes] = useState(route)
+  const [routes, setRoutes] = useState<any[]>(tabName)
   const [listProduct, setListProduct] = useState<any[]>([])
   const [totalPages, setTotalPages] = useState<number>(0)
   const currentPage = useRef<number>(0)
-  const notifyMessage = (msg: string) => {
-    if (Platform.OS === 'android') {
-      ToastAndroid.show(msg, ToastAndroid.TOP)
-    }
-  }
   useEffect(() => {
+    if (role === ESystemRoles.ADMIN) {
+      setRoutes([{ key: "1", title: "Sản phẩm có trong hệ thống" }])
+    }
     onChangeIndex(initIndex)
     getProduct()
   }, [initIndex])
@@ -42,7 +44,12 @@ const Search = ({ navigation }: any) => {
   const getProduct = async () => {
     try {
       setLoading(true)
-      const res = await getListProductOwner(currentPage.current, 7, "id")
+      let res:any
+      if (role === ESystemRoles.ADMIN) {
+        res = await getProductsByAdmin(currentPage.current, 7, "id")
+      } else {
+        res = await getListProductOwner(currentPage.current, 7, "id")
+      }
       setListProduct(res?.data?.data.content)
       setTotalPages(res?.data?.data.totalPages)
     } catch (err) {
@@ -54,8 +61,12 @@ const Search = ({ navigation }: any) => {
   const getMoreData = async () => {
     try {
       setLoading(true)
-      // currentPage.current = 2
-      const res = await getListProductOwner(currentPage.current, 7, "id")
+      let res:any
+      if (role === ESystemRoles.ADMIN) {
+        res = await getProductsByAdmin(currentPage.current, 7, "id")
+      } else {
+        res = await getListProductOwner(currentPage.current, 7, "id")
+      }
       setListProduct([...listProduct, ...res?.data?.data.content])
     } catch (err) {
       console.log(err)
@@ -168,7 +179,7 @@ const Search = ({ navigation }: any) => {
   return (
     <View style={{ flex: 1, justifyContent: 'center'}}>
       <Header
-        headerText={'Sản phẩm của tôi'} 
+        headerText={headerText ?? 'Sản phẩm của tôi'} 
         isBack={true}
         style={{borderColor: R.colors.white}}
         isSearch={false}
@@ -186,15 +197,17 @@ const Search = ({ navigation }: any) => {
           onIndexChange={(index: number) => setIndex(index)}
         />
       </View>
-      <ButtonText
-        title="Thêm sản phẩm"
-        type={E_TYPE_BUTTON.PRIMARY}
-        onPress={() => navigation.navigate(ScreenName.AddNewProduct, {onRefresh: onRefresh})}
-        customStyle={styles.buttonText}
-        customTitle={{fontSize: getFont(16), fontWeight: '600'}}
-      />
+      {role !== ESystemRoles.ADMIN && (
+        <ButtonText
+          title="Thêm sản phẩm"
+          type={E_TYPE_BUTTON.PRIMARY}
+          onPress={() => navigation.navigate(ScreenName.AddNewProduct, {onRefresh: onRefresh})}
+          customStyle={styles.buttonText}
+          customTitle={{fontSize: getFont(16), fontWeight: '600'}}
+        />
+      )}
     </View>
   );
 }
 
-export default Search
+export default Product

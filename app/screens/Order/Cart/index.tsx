@@ -1,10 +1,10 @@
 import { Header } from "../../../components/Headers/Header";
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
-import { getListProductOwnerOfCart } from "../../../apis/functions/product";
+import { Platform, StyleSheet, Text, ToastAndroid, View } from "react-native";
+import { delProduct, delProductOfCart, getListProductOwnerOfCart } from "../../../apis/functions/product";
 import { List } from "@ui-kitten/components";
 import ItemProduct from "../components/ItemProduct";
-import { formatCurrency, getFont, getHeight, getWidth, HEIGHT, WIDTH } from "../../../configs/functions";
+import { formatCurrency, getFont, getHeight, getWidth, HEIGHT, notifyMessage, WIDTH } from "../../../configs/functions";
 import R from "../../../assets/R";
 import ButtonText from "../../../components/Button/ButtonText";
 import { E_TYPE_BUTTON } from "../../../types/emuns";
@@ -18,20 +18,30 @@ const Cart = ({navigation}: any) => {
     const [itemSelected, setItemSelected] = useState(null)
     const [disabled, setDisabled] = useState<boolean>(true)
     const [totalPayment, setTotalPayment] = useState<number>(0)
+    const [cartId, setCartId] = useState<string>()
     const [item, setItem] = useState<any>()
+
     const getDataOfCart = async () => {
         setLoading(true)
         const res = await getListProductOwnerOfCart()
         if (res?.data?.status === "OK") {
+            setCartId(res?.data?.data?.id)
             setListData(res?.data?.data?.items)
+            console.log('List cart', res?.data)
         }
         setLoading(false)
     }
     useEffect(() => {
         getDataOfCart()
     }, [])
-    const handleDelProduct = () => {
-
+    const handleDelProduct = async(id: string) => {
+        setLoading(true)
+        const res = await delProductOfCart(id)
+        if (res?.status === "OK") {
+            notifyMessage("Xoá sản phẩm khòi giỏ hàng thành công!")
+            setListData(res?.data?.items)
+        }
+        setLoading(false)
     }
     const handleSelectedProduct = (item: any, index: number) => {
         setItem(item)
@@ -79,7 +89,7 @@ const Cart = ({navigation}: any) => {
                 <ButtonText
                     title="Mua hàng"
                     type={E_TYPE_BUTTON.PRIMARY}
-                    onPress={() => navigation.navigate(ScreenName.OrderProcessing, {item: item})}
+                    onPress={() => navigation.navigate(ScreenName.OrderProcessing, {item: item, cartId: cartId})}
                     customStyle={styles.buttonText}
                     customTitle={{fontSize: getFont(16), fontWeight: '600'}}
                     disabled={disabled}

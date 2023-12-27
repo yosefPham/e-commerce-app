@@ -1,13 +1,21 @@
 import React from "react"
 import { createNativeStackNavigator  } from "@react-navigation/native-stack"
 
+import Extentions from "../screens/Admin/Extentions"
+import WalletManage from "../screens/Admin/Manage/Wallet"
+import TransactionManage from "../screens/Admin/Manage/Wallet/Item/ItemWallet"
+import ProductManage from "../screens/Admin/Manage/Product"
+
+import Launching from "../screens/Launching"
 import TabMain from "../screens/TabHome"
 import Login from "../screens/Auth/Login"
 import Register from "../screens/Auth/Register"
 import ActiveAccount from "../screens/Auth/ActiveAccount"
+import Notification from "../screens/TabHome/Notification"
 
 import Search from "../screens/Search"
 import AccountSettings from "../screens/AccountSettings"
+import Account from "../screens/AccountSettings/Account"
 import Profile from "../screens/AccountSettings/Profile"
 import Address from "../screens/AccountSettings/Address"
 import NewAddress from "../screens/AccountSettings/Address/Item/NewAddress"
@@ -30,12 +38,14 @@ import Finance from "../screens/Finance"
 import Deposits from "../screens/Finance/Deposits"
 import Withdraw from "../screens/Finance/Withdraw"
 import WithdrawalAccount from "../screens/Finance/WithdrawalAccount"
+import BankAccount from "../screens/Finance/WithdrawalAccount/BankAccount"
 import Sales from "../screens/Finance/Sales"
 import TransactionHistory from "../screens/Finance/TransactionHistory"
 import Pay from "../screens/Finance/Deposits/Pay"
 
 
 export type PrimaryParamList = {
+    Launching: undefined,
     Login: undefined,
     Home: undefined,
     Profile: undefined,
@@ -64,6 +74,13 @@ export type PrimaryParamList = {
     PaymentMethods: undefined
     Detail: undefined
     TransactionHistory: undefined
+    Extentions: undefined
+    Account: undefined
+    BankAccount: undefined
+    WalletManage: undefined
+    TransactionManage: undefined
+    ProductManage: undefined
+    Notification: undefined
 }
 
 const Stack = createNativeStackNavigator<PrimaryParamList>()
@@ -74,17 +91,28 @@ export function MainNavigator() {
                 headerShown: false,
                 animation: 'fade'
             }}
-            initialRouteName="TabMain"
+            initialRouteName="Launching"
         >
             {/* Auth */}
-            <Stack.Screen name="TabMain" component={TabMain} />
+            <Stack.Screen name="Launching" component={Launching} />
             <Stack.Screen name="Login" component={Login} />
             <Stack.Screen name="Register" component={Register} />
             <Stack.Screen name="ActiveAccount" component={ActiveAccount} />
 
+            <Stack.Screen name="TabMain" component={TabMain} />
+            <Stack.Screen name="Notification" component={Notification} />
+
+            {/* Admin */}
+            <Stack.Screen name="Extentions" component={Extentions} />
+            <Stack.Screen name="WalletManage" component={WalletManage} />
+            <Stack.Screen name="TransactionManage" component={TransactionManage} />
+            <Stack.Screen name="ProductManage" component={ProductManage} />
+
             {/* Account */}
+            <Stack.Screen name="Account" component={Account} />
             <Stack.Screen name="Profile" component={Profile} />
             <Stack.Screen name="Address" component={Address} />
+            <Stack.Screen name="BankAccount" component={BankAccount} />
 
             {/* Shop */}
             <Stack.Screen name="MyProduct" component={MyProduct} />

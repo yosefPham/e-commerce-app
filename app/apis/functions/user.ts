@@ -37,10 +37,22 @@ export const getListAddressUser = () => {
   }).then((res: any) => res)
 }
 
+export const getAccountByAmdin = (page?: number, limit?: number, sort?: string ) => {
+  return getData<any, any>({
+    endpoint: `${URL.GET_ACCOUNT_BY_ADMIN}?pageNo=${page}&pageSize=${limit}&sortBy=${sort}&sortDir=des`,
+  }).then((res: any) => res)
+}
+
 export const postAddress = (body: any) => {
   return postData<any, any>({
     endpoint: `${URL.ADDRESS}/create`,
     params: body,
+  }).then((res: any) => res)
+}
+
+export const putDefaultAddress = (id: string) => {
+  return putData<any, any>({
+    endpoint: `${URL.ADDRESS}/default-set/${id}`,
   }).then((res: any) => res)
 }
 
@@ -106,3 +118,22 @@ export const getListBinBank = () =>
     endpoint: `${URL.GET_BIN_BANK}`,
     params: {}
   }).then((res) => res.data)
+
+export const postCheckBankAccount = (body: any) => {
+  return postData<any, any>({
+    endpoint: `${URL.CHECK_BANK_ACCOUNT}`,
+    params: body,
+  }).then((res: any) => res)
+}
+
+export const getNotifications = () => {
+  return getData<any, any>({
+    endpoint: `${URL.NOTIFICATION}/all`,
+  }).then((res) => res.data)
+}
+
+export const putNoti = (id: string) => {
+  return putData<any, any>({
+    endpoint: `${URL.NOTIFICATION}/seen/${id}`,
+  }).then((res) => res.data)
+}

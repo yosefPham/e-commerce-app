@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef} from "react"
+import React, {useEffect, useState, useRef, useContext} from "react"
 import { View, ViewStyle, TextStyle, Text, Button, TouchableOpacity, StyleSheet } from "react-native"
 import { useNavigation } from '@react-navigation/native';
 import Icon from "react-native-vector-icons/Ionicons"
@@ -12,6 +12,8 @@ import SearchBar from "../Item/SearchBar"
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ScreenName from "../../navigation/screen-name";
 import { getSizeOfCart } from "../../apis/functions/product";
+import { AuthContext } from "../../context/AuthContext";
+import { ESystemRoles } from "../../types/emuns";
 
 // static styles
 const ROOT: ViewStyle = {
@@ -56,6 +58,7 @@ export function Header(props: HeaderProps) {
     onSubmit,
     quantityOfCart
   } = props
+  const { role } = useContext(AuthContext)
   const navigation: any = useNavigation();
   const [useInfo, setUserInfo] = useState<any>()
   const [sizeCart, setSizeCart] = useState<number>(0)
@@ -102,7 +105,7 @@ export function Header(props: HeaderProps) {
         onChangeText={onChangeText}
         onSubmit={onSubmit}
       />}
-      {isIconCart ? (
+      {(isIconCart && role !== ESystemRoles.ADMIN) ? (
         <TouchableOpacity style={styles.iconRight} onPress={() => useInfo ? navigation.navigate(ScreenName.Cart) : navigation.navigate(ScreenName.Login)}>
           <Icon name={"cart-outline"} size={WIDTH(25)} color={isSearch === false ? R.colors.white : R.colors.primary} />
           {sizeCart ? 
@@ -114,7 +117,7 @@ export function Header(props: HeaderProps) {
       ) : (
         <View style={RIGHT} />
       )}
-      {isIconMessage ? (
+      {(isIconMessage && role !== ESystemRoles.ADMIN) ? (
         <TouchableOpacity style={styles.iconRight} onPress={() => useInfo ? (onMessagePress && onMessagePress()) : navigation.navigate(ScreenName.Login)}>
           <Icon name={"chatbubble-ellipses-outline"} size={WIDTH(25)} color={isSearch === false ? R.colors.white : R.colors.primary} />
           {sizeMessage ?

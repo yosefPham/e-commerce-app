@@ -3,7 +3,7 @@ import React, { useContext, useRef, useState } from "react";
 import { Text, View, StyleSheet, TouchableOpacity, ToastAndroid, Platform } from "react-native";
 
 import InputText from "../../../components/Input/InputText";
-import { getFont, HEIGHT, WIDTH } from "../../../configs/functions";
+import { formatString, getFont, HEIGHT, notifyMessage, WIDTH } from "../../../configs/functions";
 import R from "../../../assets/R";
 import ButtonText from "../../../components/Button/ButtonText";
 import { E_TYPE_BUTTON } from "../../../types/emuns";
@@ -12,11 +12,6 @@ import {AuthContext} from "../../../context/AuthContext"
 import { CommonActions } from '@react-navigation/native';
 
 const Login = ({navigation}: any) => {
-    const notifyMessage = (msg: string) => {
-        if (Platform.OS === 'android') {
-          ToastAndroid.show(msg, ToastAndroid.TOP)
-        }
-    }
     const email = useRef<string>("")
     const password = useRef<string>("")
     const [loading, setLoading] = useState<boolean>(false)
@@ -41,13 +36,14 @@ const Login = ({navigation}: any) => {
                 return notifyMessage('Vui lòng điền đầy đủ thông tin!')
             }
             setLoading(true)
-            const res = await handleLogin({email: email.current, password: password.current})
+            const res = await handleLogin({email: formatString(email.current), password: password.current})
             if (res?.status === 'OK') {
+                console.log("res", res)
                 notifyMessage('Đăng nhập thành công')
                 navigation.dispatch(
                     CommonActions.reset({
-                      index: 0,
-                      routes: [{ name: ScreenName.TabMain }],
+                        index: 0,
+                        routes: [{ name: ScreenName.Launching }],
                     })
                 );
             } else {

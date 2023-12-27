@@ -11,6 +11,8 @@ type Props = {
     iconName: string
     color: string
     name: string
+    logo?: string
+    sizeIcon?: number
   }
   onPress(): void,
   customStyles?: ViewStyle
@@ -25,7 +27,11 @@ const ItemFunction = (props: Props) => {
     <TouchableOpacity disabled={disabled} activeOpacity={0.6} onPress={() => onPress()} style={[styles.container, customStyles, disabled && {backgroundColor: R.colors.borderF7F7F9}]}>
       <View style={{width: !noNext ? "90%" : "100%"}}>
         <View style={styles.title}>
-          <Icon name={item?.iconName} color={item?.color} size={20}/>
+          {item?.logo ? <View style={{width: WIDTH(90), height: HEIGHT(25)}}>
+            <Image style={{width: '100%', height: "100%"}} source={{uri: item?.logo}}/>
+          </View> : 
+          <Icon name={item?.iconName} color={item?.color} size={item?.sizeIcon ?? 20}/>
+          }
           <Text style={styles.name}>{item?.name}</Text>
         </View>
         {body && 

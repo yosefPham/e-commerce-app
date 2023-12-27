@@ -57,6 +57,7 @@ export async function postData<P, R>(request: IRequest<P>): Promise<IResponse<R>
   return await rootServerInstance
     .post<R & ErrorCode>(request.endpoint, request.params)
     .then((response: any) => {
+      console.log('response', response);
       return response?.data
     })
 }

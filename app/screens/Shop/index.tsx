@@ -1,28 +1,91 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useEffect, useRef, useState } from "react";
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { TabView } from "react-native-tab-view";         
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons"
+import { List } from "@ui-kitten/components";
 
 import { Header } from "../../components/Headers/Header";
 import ItemHeader from "./Item/ItemHeader";
-import { getFont, getLineHeight, HEIGHT, WIDTH } from "../../configs/functions";
+import { getFont, getLineHeight, getWidth, HEIGHT, WIDTH } from "../../configs/functions";
 import R from "../../assets/R";
 import ItemProducts from "./Item/ItemListProduct";
 import ButtonText from "../../components/Button/ButtonText";
 import { E_TYPE_BUTTON } from "../../types/emuns";
 import ScreenName from "../../navigation/screen-name";
+import ItemProduct from "../../components/Item/ItemProduct";
+import ItemEmpty from "../../components/Item/ItemEmpty";
+import { getListProductInShop } from "../../apis/functions/product";
+import { getAccount } from "../../apis/functions/user";
 
-const route = [
+const menu = [
     { key: "1", title: "Liên quan" },
     { key: "2", title: "Mới nhất" },
     { key: "3", title: "Bán chạy" },
     { key: "4", title: "Giá" },
 ]
-const Shop = ({navigation}: any) => {
-    const initIndex = 0
-
+const Shop = ({navigation, route}: any) => {
+  const id  = route?.params?.userId
+  const initIndex = 0
   const [currentIndex, setIndex] = useState(initIndex)
-  const [routes, setRoutes] = useState(route)
+  const [routes, setRoutes] = useState(menu)
+  const [listProduct, setListProduct] = useState<any[]>([])
+  const [totalPages, setTotalPages] = useState<number>(0)
+  const currentPage = useRef<number>(0)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [textSearch, setTextSearch] = useState<string>('')
+  const [userId, setUserId] = useState<string>()
+  const [shopInfo, setShopInfo] = useState<any>()
+  
+  const getShopInfo = async () => {
+    const userInfoString: any = await AsyncStorage.getItem('userInfo')
+    const userInfoObject = JSON.parse(userInfoString);
+    setUserId(userInfoObject?.id)
+    const res = await getAccount(id ?? userInfoObject?.id)
+    setShopInfo(res?.data?.data)
+  }
+  const getData = async () => {
+    try {
+      setLoading(true)
+      const res = await getListProductInShop(id ?? userId, currentPage.current, 6)
+      if (res?.data?.status === "OK") {
+        setListProduct(res?.data?.data.content)
+        setTotalPages(res?.data?.data.totalPages)
+      }
+    } catch (err) {
+      console.log(err)
+    } finally {
+      setLoading(false)
+    }
+  }
+  const getMoreData = async () => {
+    try {
+      setLoading(true)
+      // currentPage.current = 2
+      const res = await getListProductInShop(id ?? userId, currentPage.current, 6)
+      setListProduct([...listProduct, ...res?.data?.data.content])
+    } catch (err) {
+      console.log(err)
+    } finally {
+      setLoading(false)
+    }
+  }
+  const onLoadMore = () => {
+    if (currentPage.current < totalPages) {
+      currentPage.current = currentPage.current + 1
+    }
+    getMoreData()
+  }
+  const onRefresh = () => {
+    currentPage.current = 0;
+    getData()
+  }
+  useEffect(() => {
+    getData()
+    getShopInfo()
+  }, [])
+  useEffect(() => {
+  }, [listProduct, shopInfo])
   useEffect(() => {
     onChangeIndex(initIndex)
   }, [initIndex])
@@ -35,8 +98,33 @@ const Shop = ({navigation}: any) => {
   const renderScene = ({ route }: { route: { key: string } }) => {
     switch (route.key) {
       case "1":
-        return (<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ItemProducts/>
+        return (
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <List
+            data={listProduct}
+            extraData={listProduct}
+            showsVerticalScrollIndicator={false}
+            renderItem={({ item, index }: any) => {
+              // if (listProduct.length === index + 1 && listProduct.length % 2 !== 0) {
+              //   return <View/>
+              // }
+              return (
+                <ItemProduct key={index} item={item ?? {}} isLocation={true}/>
+              )
+            }}
+            numColumns={getWidth() >= 300 ? 2 : 1}
+            onEndReachedThreshold={0.1}
+            maxToRenderPerBatch={6}
+            initialNumToRender={6}
+            style={styles.list}
+            columnWrapperStyle={getWidth() >= 300 ? styles.columnWrapperStyle : undefined}
+            onRefresh={onRefresh}
+            refreshing={loading}
+            ListFooterComponent={<View style={R.themes.gap} />}
+            onEndReached={onLoadMore}
+            ListEmptyComponent={<ItemEmpty/>}
+            // ListFooterComponent={loadMore && <LoadMore />}
+          />
         </View>)
       case "2":
         return (<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -94,40 +182,40 @@ const Shop = ({navigation}: any) => {
       </View>
     )
   }
-
-    return (
-        <View style={{ flex: 1, justifyContent: 'center'}}>
-            <Header
-                isBack={true}
-                isIconMessage={true}
-                placeHolderInput={'Tìm kiếm trong shop'}
-                noBorder={true}
-            />
-            <ItemHeader/>
-            <View style={{ flex: 1, justifyContent: 'center'}}>
-                <View style={styles.container}>
-                    <TabView
-                        renderTabBar={renderTabBar}
-                        navigationState={{
-                            index: currentIndex,
-                            routes,
-                        }}
-                        renderScene={renderScene}
-                        swipeEnabled={false}
-                        tabBarPosition="top"
-                        onIndexChange={(index: number) => setIndex(index)}
-                    />
-                </View>
-            </View>
-            <ButtonText
-              title="Thêm sản phẩm"
-              type={E_TYPE_BUTTON.PRIMARY}
-              onPress={() => navigation.navigate(ScreenName.AddNewProduct)}
-              customStyle={styles.buttonText}
-              customTitle={{fontSize: getFont(16), fontWeight: '600'}}
-            />
-        </View>
-    )
+  return (
+      <View style={{ flex: 1, justifyContent: 'center'}}>
+          <Header
+              isBack={true}
+              isIconMessage={true}
+              placeHolderInput={'Tìm kiếm trong shop'}
+              noBorder={true}
+          />
+          <ItemHeader item={shopInfo}/>
+          <View style={{ flex: 1, justifyContent: 'center'}}>
+              <View style={styles.container}>
+                  <TabView
+                      renderTabBar={renderTabBar}
+                      navigationState={{
+                          index: currentIndex,
+                          routes,
+                      }}
+                      renderScene={renderScene}
+                      swipeEnabled={false}
+                      tabBarPosition="top"
+                      onIndexChange={(index: number) => setIndex(index)}
+                  />
+              </View>
+          </View>
+          {!id && 
+          <ButtonText
+            title="Thêm sản phẩm"
+            type={E_TYPE_BUTTON.PRIMARY}
+            onPress={() => navigation.navigate(ScreenName.AddNewProduct)}
+            customStyle={styles.buttonText}
+            customTitle={{fontSize: getFont(16), fontWeight: '600'}}
+          />}
+      </View>
+  )
 }
 
 export default Shop
@@ -192,5 +280,12 @@ const styles = StyleSheet.create({
     width: '100%',
     height: HEIGHT(45),
     marginVertical: HEIGHT(2),
-  }
+  },
+  columnWrapperStyle: { justifyContent: "flex-start"},
+  list: {
+    width: getWidth(),
+    backgroundColor: R.colors.gray1,
+    paddingHorizontal: WIDTH(5),
+    paddingVertical: HEIGHT(10)
+  },
 })

@@ -10,7 +10,7 @@ const themes = {
     },
     shadowOpacity: 0.15,
     shadowRadius: 1.84,
-    elevation: 1.84,
+    elevation: 20.84,
   },
   datepicker: {
     borderWidth: 0,

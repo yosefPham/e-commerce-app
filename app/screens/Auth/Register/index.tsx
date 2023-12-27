@@ -3,7 +3,7 @@ import React, { useRef, useState, useContext } from "react";
 import { View, StyleSheet, ToastAndroid, Platform } from "react-native";
 
 import InputText from "./../../../components/Input/InputText";
-import { getFont, HEIGHT, WIDTH } from "../../../configs/functions";
+import { formatString, getFont, HEIGHT, notifyMessage, WIDTH } from "../../../configs/functions";
 import R from "../../../assets/R";
 import ButtonText from "./../../../components/Button/ButtonText";
 import { E_TYPE_BUTTON } from "../../../types/emuns";
@@ -16,11 +16,6 @@ const Register = ({navigation}: any) => {
     const password = useRef<string>("")
     const [loading, setLoading] = useState<boolean>(false)
 
-    const notifyMessage = (msg: string) => {
-        if (Platform.OS === 'android') {
-          ToastAndroid.show(msg, ToastAndroid.TOP)
-        }
-    }
     const onChangeValue = (value: string, index: number) => {
         switch (index) {
             case 0: {
@@ -62,7 +57,7 @@ const Register = ({navigation}: any) => {
                 navigation.navigate(ScreenName.ActiveAccount, {
                     firstName: firstName.current,
                     lastName: lastName.current,
-                    email: email.current,
+                    email: formatString(email.current),
                     password: password.current
                 })
             } else {

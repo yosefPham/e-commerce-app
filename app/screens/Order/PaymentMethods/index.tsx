@@ -40,7 +40,7 @@ const PaymentMethods = ({navigation, route}: any) => {
                     onPress("Ví điện tử")
                     navigation.goBack();
                 }}
-                disabled={totalAmount < balance}
+                disabled={totalAmount > balance}
                 customStyles={{backgroundColor: R.colors.white}}
                 body={
                     <>

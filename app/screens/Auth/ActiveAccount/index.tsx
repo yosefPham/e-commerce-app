@@ -2,7 +2,7 @@ import { Header } from "./../../../components/Headers/Header";
 import React, { useRef, useState, useContext, useEffect } from "react";
 import { Text, View, StyleSheet, TouchableOpacity, TextInput, Image, Platform, ToastAndroid } from "react-native";
 import InputText from "./../../../components/Input/InputText";
-import { getFont, HEIGHT, WIDTH } from "../../../configs/functions";
+import { getFont, HEIGHT, notifyMessage, WIDTH } from "../../../configs/functions";
 import R from "../../../assets/R";
 import ButtonText from "./../../../components/Button/ButtonText";
 import { E_TYPE_BUTTON } from "../../../types/emuns";
@@ -42,11 +42,6 @@ const ActiveAccount = ({navigation, route}: any) => {
     
     const minutes = Math.floor(countdown / 60);
     const seconds = countdown % 60;
-    const notifyMessage = (msg: string) => {
-        if (Platform.OS === 'android') {
-          ToastAndroid.show(msg, ToastAndroid.TOP)
-        }
-    }
     const handleInputChange = (index: number, text: string) => {
         const newVerificationCode = [...verificationCode];
         newVerificationCode[index] = text;

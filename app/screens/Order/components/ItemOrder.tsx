@@ -8,33 +8,39 @@ import { formatCurrency, getFont, HEIGHT, WIDTH } from "./../../../configs/funct
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import Colors from "./../../../assets/colors";
 import ButtonText from "./../../../components/Button/ButtonText"
-import { E_TYPE_BUTTON } from "./../../../types/emuns"
+import { E_ROLE_ORDER, E_TYPE_BUTTON, E_TYPE_ORDER_STATUS } from "./../../../types/emuns"
 
 type Props = {
   item: any
   route?: any
   onPress?: (item: any) => void
   status?: string
+  role?: string
+  onChangeOrderStatus?: any
 }
-const SET_WIDTH: ViewStyle = {height: HEIGHT(215)}
+const SET_WIDTH: ViewStyle = {}
 const ItemOrder: React.FC<Props> = (props: Props) => {
-  const { item, route, onPress, status} = props
+  const { item, route, onPress, status, role, onChangeOrderStatus} = props
   useEffect(() => {
 
   }, [status])
   return (
-    <TouchableOpacity activeOpacity={0.5} onPress={() => onPress && onPress(item)} style={[styles.container, (route?.key === "2" || route?.key === "3" || route?.key === "4") && SET_WIDTH]}>
+    <TouchableOpacity activeOpacity={0.5} onPress={() => onPress && onPress(item)} style={[styles.container, ((route?.key === E_TYPE_ORDER_STATUS.DONE || route?.key === E_TYPE_ORDER_STATUS.CANCEL || route?.key === E_TYPE_ORDER_STATUS.IGNORE) || (role === E_ROLE_ORDER.SELL)) && SET_WIDTH]}>
         <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: HEIGHT(10)}}>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <MaterialCommunityIcons name="storefront-outline" size={25} color={R.colors.black0} />
-                <Text style={{fontSize: getFont(15), fontWeight: '600'}}> {item?.nameShop ?? "Savislôke.vn"}</Text>
-            </View>
-            {!status ? <View/> : <Text style={{fontSize: getFont(15), color: R.colors.primary}}>{status ?? "Chờ xác nhận"}</Text>}
+            {role !== E_ROLE_ORDER.SELL && (
+                <>
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                        <MaterialCommunityIcons name="storefront-outline" size={25} color={R.colors.black0} />
+                        <Text style={{fontSize: getFont(15), fontWeight: '600'}}> {item?.seller?.firstName} {item?.seller?.lastName  ?? "Hau"}</Text>
+                    </View>
+                    {!status ? <View/> : <Text style={{fontSize: getFont(15), color: R.colors.primary}}>{status ?? "Chờ xác nhận"}</Text>}
+                </>
+            )}
         </View>
         <View style={[styles.containerProduct]}>
             <View style={styles.containerImage}>
                 <Image
-                    source={{uri: item?.resources[0]?.imageUrl}}
+                    source={{uri: item?.product?.resources[0]?.imageUrl}}
                     style={styles.image}
                 />
             </View>
@@ -44,7 +50,7 @@ const ItemOrder: React.FC<Props> = (props: Props) => {
                     numberOfLines={2}
                     ellipsizeMode='tail'
                 >
-                    {item?.name ?? "Đang cập nhật"}
+                    {item?.product?.name ?? "Đang cập nhật"}
                 </Text>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                     <View style={styles.location}>
@@ -52,7 +58,7 @@ const ItemOrder: React.FC<Props> = (props: Props) => {
                     </View>
                 </View>
                 <View style={styles.footer}>
-                    <Text style={{fontSize: getFont(14), color: R.colors.primary}}>{formatCurrency(item?.standardPrice ?? 250000)}</Text>
+                    <Text style={{fontSize: getFont(14), color: R.colors.primary}}>{formatCurrency(item?.product?.standardPrice ?? 250000)}</Text>
                 </View>
             </View>
         </View>
@@ -70,16 +76,40 @@ const ItemOrder: React.FC<Props> = (props: Props) => {
                 <Icon name="receipt-outline" size={25} color={R.colors.primary} />
                 <Text style={{fontSize: getFont(15), color: R.colors.gray48}}> Thành tiền: </Text>
             </View>
-            <Text style={{fontSize: getFont(16), color: R.colors.primary}}> {formatCurrency(item?.standardPrice ?? 250000)}</Text>
+            <Text style={{fontSize: getFont(16), color: R.colors.primary}}> {formatCurrency(item?.amount ?? 0)}</Text>
         </View>
-        {(route?.key === "2" || route?.key === "3" || route?.key === "4") &&
-        <View style={{flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', marginTop: HEIGHT(10)}}>
-        <ButtonText
-            onPress={() => {}} 
-            title="Mua lại" 
-            type={E_TYPE_BUTTON.PRIMARY}
-        />
-    </View>}
+        {((route?.key === E_TYPE_ORDER_STATUS.DONE || route?.key === E_TYPE_ORDER_STATUS.CANCEL || route?.key === E_TYPE_ORDER_STATUS.IGNORE)
+        && role !== E_ROLE_ORDER.SELL) &&
+        <View style={{flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', marginTop: HEIGHT(10), paddingBottom: HEIGHT(10)}}>
+            <ButtonText
+                onPress={() => {}} 
+                title="Mua lại" 
+                type={E_TYPE_BUTTON.PRIMARY}
+            />
+        </View>}
+        {(role === E_ROLE_ORDER.SELL && item?.orderStatus === E_TYPE_ORDER_STATUS.PENDING) &&
+        <View style={{flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', marginTop: HEIGHT(10), paddingBottom: HEIGHT(10)}}>
+            <ButtonText
+                onPress={() => onChangeOrderStatus && onChangeOrderStatus(item?.id, E_TYPE_ORDER_STATUS.REJECTED)}
+                title="Từ chối" 
+                type={E_TYPE_BUTTON.OUTLINE}
+                customStyle={{marginRight: HEIGHT(5)}}
+            />
+            <ButtonText
+                onPress={() => onChangeOrderStatus && onChangeOrderStatus(item?.id, E_TYPE_ORDER_STATUS.ACCEPTED)}
+                title="Chấp nhận" 
+                type={E_TYPE_BUTTON.PRIMARY}
+            />
+        </View>}
+        {(role === E_ROLE_ORDER.SELL && item?.orderStatus === E_TYPE_ORDER_STATUS.ACCEPTED) &&
+        <View style={{flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', marginTop: HEIGHT(10), paddingBottom: HEIGHT(10)}}>
+            <ButtonText
+                onPress={() => onChangeOrderStatus && onChangeOrderStatus(item?.id, E_TYPE_ORDER_STATUS.DELIVERY)}
+                title="Duyệt vận chuyển đã lấy đơn" 
+                type={E_TYPE_BUTTON.PRIMARY}
+                customStyle={{width: '50%'}}
+            />
+        </View>}
     </TouchableOpacity>
   )
 }
@@ -88,7 +118,7 @@ export default ItemOrder
 
 const styles = StyleSheet.create({
     container: {
-        height: HEIGHT(164),
+        // height: HEIGHT(164),
         backgroundColor: R.colors.white,
         marginBottom: HEIGHT(10),
         paddingHorizontal: WIDTH(13),

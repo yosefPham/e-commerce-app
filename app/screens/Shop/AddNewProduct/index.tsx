@@ -4,7 +4,7 @@ import * as ImagePicker from 'expo-image-picker';
 
 import { Header } from "./../../../components/Headers/Header";
 import InputText from "./../../../components/Input/InputText";
-import { getFont, HEIGHT, WIDTH } from "./../../../configs/functions";
+import { getFont, HEIGHT, notifyMessage, WIDTH } from "./../../../configs/functions";
 import ButtonText from "./../../../components/Button/ButtonText";
 import { E_TYPE_BUTTON } from "./../../../types/emuns";
 import R from "./../../../assets/R";
@@ -24,11 +24,6 @@ const AddNewProduct = ({navigation, route}: any) => {
     const [image, setImage] = useState<any>([{ addImage: true}]);
     const [onSubmit, setOnSubmit] = useState<boolean>(false)
 
-    const notifyMessage = (msg: string) => {
-        if (Platform.OS === 'android') {
-          ToastAndroid.show(msg, ToastAndroid.TOP)
-        }
-    }
     useEffect(() => {
         if (name.current.trim() !== "" && description.current.trim() !== "" && 
         brand.current.trim() !== "" && standardPrice.current.trim() !== "" &&

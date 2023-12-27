@@ -49,23 +49,8 @@ const Deposits = ({navigation, route}: any) => {
     const showConfirmationAlert = () => {
         if (isPending) {
             Alert.alert(
-                'Cảnh báo',
-                'Bạn có đơn nạp tiền đang chờ xử lý, hành động này sẽ ghi đè số tiền đơn nạp tiền trước đó?',
-                [
-                  {
-                    text: 'Huỷ bỏ',
-                    onPress: () => {},
-                    style: 'cancel',
-                  },
-                  {
-                    text: 'Xác nhận',
-                    onPress: () => {
-                        handleDepositsMoney()
-                    },
-                  },
-                ],
-                { cancelable: false }
-            );
+                'Thông báo!',
+                'Bạn có đơn nạp tiền đang chờ xử lý, vui lòng đợi xong giao dịch trước đó!');
         } else {
             handleDepositsMoney()
         }
@@ -80,7 +65,7 @@ const Deposits = ({navigation, route}: any) => {
             if (res.status === "OK") {
                 navigation.navigate(ScreenName.Pay, { amount: value, data: res?.data, getPending: getPending})
             } else {
-                alert("Có lỗi xảy ra, vui lòng thử lại sau!")
+                alert(res.message)
             }
         } catch (e) {
 

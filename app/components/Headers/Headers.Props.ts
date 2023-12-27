@@ -3,7 +3,7 @@ import { ViewStyle, TextStyle } from "react-native"
 
 export interface HeaderProps {
   headerTx?: string
-  headerText?: string
+  headerText?: any
   leftIcon?: string
   onBack?(): void
   rightIcon?: string

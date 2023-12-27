@@ -6,8 +6,8 @@ import ItemFunction from "../../components/Item/ItemFunction";
 import R from "../../assets/R";
 import ScreenName from "../../navigation/screen-name";
 import ButtonText from "../../components/Button/ButtonText";
-import { getFont, HEIGHT } from "../../configs/functions";
-import { E_TYPE_BUTTON } from "../../types/emuns";
+import { getFont, HEIGHT, notifyMessage } from "../../configs/functions";
+import { ESystemRoles, E_TYPE_BUTTON } from "../../types/emuns";
 import {AuthContext} from "../../context/AuthContext"
 import { ToastAndroid } from "react-native";
 import { CommonActions } from "@react-navigation/native";
@@ -24,16 +24,24 @@ const listFunction = [
     color: R.colors.primary,
     screenNameMove: ScreenName.Shop
   },
+  {
+    name: 'Quản lý tài khoản',
+    iconName: '',
+    color: R.colors.primary,
+    screenNameMove: ScreenName.Shop
+  },
+  {
+    name: 'Tài khoản ngân hàng',
+    iconName: '',
+    color: R.colors.primary,
+    screenNameMove: ScreenName.Account
+  },
 ]
 const AccountSettings = ({ navigation, route }: any) => {
+  const { role } = useContext(AuthContext)
   const onFresh = route?.params?.onFresh
   const { logoutAccount } = useContext(AuthContext)
   const [loading, setLoading] = useState<boolean>(false)
-  const notifyMessage = (msg: string) => {
-    if (Platform.OS === 'android') {
-      ToastAndroid.show(msg, ToastAndroid.TOP)
-    }
-  }
   const handleLogout = async () => {
     setLoading(true)
     const res = await logoutAccount()
@@ -42,7 +50,7 @@ const AccountSettings = ({ navigation, route }: any) => {
       navigation.dispatch(
         CommonActions.reset({
           index: 0,
-          routes: [{ name: ScreenName.TabMain }],
+          routes: [{ name: ScreenName.Launching }],
         })
       );
     } else {
@@ -78,9 +86,21 @@ const AccountSettings = ({ navigation, route }: any) => {
         onPress={() => navigation.navigate(ScreenName.Profile)} 
         customStyles={{backgroundColor: R.colors.white}}
       />
+      {role === ESystemRoles.USER ? 
       <ItemFunction 
         item={listFunction[1]} 
         onPress={() => navigation.navigate(ScreenName.Address)}
+        customStyles={{backgroundColor: R.colors.white}}
+      /> :
+      <ItemFunction 
+        item={listFunction[2]} 
+        onPress={() => navigation.navigate(ScreenName.Account)}
+        customStyles={{backgroundColor: R.colors.white}}
+      />
+      }
+      <ItemFunction 
+        item={listFunction[3]} 
+        onPress={() => navigation.navigate(ScreenName.WithdrawalAccount)}
         customStyles={{backgroundColor: R.colors.white}}
       />
       <ButtonText

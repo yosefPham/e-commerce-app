@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Platform, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
-import { List } from "@ui-kitten/components";
+import { CheckBox, List } from "@ui-kitten/components";
 
 import { Header } from "../../../../components/Headers/Header";
 import R from "../../../../assets/R";
 import ScreenName from "../../../../navigation/screen-name";
 import ItemFunction from "../../../../components/Item/ItemFunction";
 import { getListAddress, getListDistrict, getListWards, postAddress } from "../../../../apis/functions/user";
-import { getFont, getWidth, HEIGHT, WIDTH } from "../../../../configs/functions";
+import { getFont, getHeight, getWidth, HEIGHT, notifyMessage, WIDTH } from "../../../../configs/functions";
 import InputText from "../../../../components/Input/InputText";
 import ButtonText from "../../../../components/Button/ButtonText";
 import { E_TYPE_BUTTON } from "../../../../types/emuns";
@@ -30,13 +30,7 @@ const NewAddress = ({navigation, route}: any) => {
     const [disable, setDisable] = useState<boolean>(true)
     const [loading, setLoading] = useState<boolean>(false)
     const [loadingSend, setLoadingSend] = useState<boolean>(false)
-
-    const notifyMessage = (msg: string) => {
-        if (Platform.OS === 'android') {
-          ToastAndroid.show(msg, ToastAndroid.TOP)
-        }
-    }
-
+    const [defaultAddress, setDefaultAddress] = useState<boolean>(false)
     const getData = async () => {
         setLoading(true)
         let res: any = [];
@@ -121,15 +115,16 @@ const NewAddress = ({navigation, route}: any) => {
                 detail: detail.current,
                 ward: nameWards,
                 district: nameDistrict,
-                province: nameCity
+                province: nameCity,
+                default: defaultAddress
             }
+            console.log('body', body)
             const res = await postAddress(body)
             if (res.status === "OK") {
                 notifyMessage("Thêm địa chỉ mới thành công!")
                 navigation.goBack()
                 onRefresh && onRefresh()
             }
-            console.log('res', res, body)
         } catch (err) {
             notifyMessage("Có lỗi xảy ra!")
         } finally {
@@ -137,7 +132,7 @@ const NewAddress = ({navigation, route}: any) => {
         }
     }
     return (
-        <View style={{alignItems: 'center'}}>
+        <View style={{alignItems: 'center', height: getHeight()}}>
             <Header
                 isBack={true}
                 isSearch={false}
@@ -183,6 +178,26 @@ const NewAddress = ({navigation, route}: any) => {
                 disabled={!nameWards}
                 required
             />}
+            {nameWards && 
+            <View 
+                style={{
+                    backgroundColor: R.colors.white,
+                    flexDirection: 'row',
+                    width: '100%',
+                    paddingHorizontal: WIDTH(15),
+                    paddingVertical: HEIGHT(15)
+                }}
+            >
+                <CheckBox
+                    status='danger'
+                    checked={defaultAddress}
+                    onChange={(value) => setDefaultAddress(value)}
+                    disabled={!nameWards}
+                    style={{marginRight: WIDTH(10)}}
+                />
+                <Text>Đặt làm địa chỉ mặc định</Text>
+            </View>
+            }
             <View>
             {loading ? <LoadingComponent isLoading={loading} style={{position: 'absolute', top: 200}}/> : (
                 <List
